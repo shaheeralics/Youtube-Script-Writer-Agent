@@ -115,8 +115,8 @@ Use these guidelines to generate a viral, relatable, and funny script that feels
 # ----------------------------
 # 3. Configure Gemini 2.0 Flash API
 # ----------------------------
-# Best practice: set your GOOGLE_API_KEY environment variable before running the app.
-api_key = 'AIzaSyANmc789xGVa1mbS0qH4Pt69QbUU_2E0mM'
+# Retrieve the API key from Streamlit secrets
+api_key = st.secrets["google_api"]
 
 genai.configure(api_key=api_key)
 model = genai.GenerativeModel("gemini-2.0-flash")
