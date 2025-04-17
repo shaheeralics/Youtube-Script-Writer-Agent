@@ -80,7 +80,7 @@ Examples & References:
 
 Topics can include tech trends (like wireless charging vs. Type-C), commentary on current events (e.g., Elon Musk vs. censorship), or humorous takes on everyday phenomena.
 
-Reference familiar cultural cues (e.g., “boss”, “, or other informal expressions) to maintain relatability.
+Reference familiar cultural cues (use casual english or hindi informal expressions) to maintain relatability.
 
 Output Requirement:
 
