@@ -114,13 +114,14 @@ Use these guidelines to generate a viral, relatable, and funny script that feels
 
 # ----------------------------
 # 3. Configure Gemini 2.0 Flash API
-# ----------------------------
-# Retrieve the API key from Streamlit secrets
+# Best practice: read API key from Streamlit secrets
 api_key = st.secrets["google_key"]
 
+# Configure the API
 genai.configure(api_key=api_key)
-model = genai.GenerativeModel("gemini-2.0-flash")
 
+# Initialize the model
+model = genai.GenerativeModel("gemini-2.0-flash")
 # ----------------------------
 # 4. Streamlit App Layout & Settings
 # ----------------------------
