@@ -58,7 +58,7 @@ Main Body:
 
 Provide context or background information on the topic in a brief and dynamic manner.
 
-Break down the topic into 2–3 main points or “reasons” presented with humorous analogies, practical examples, or exaggeration (e.g., compare wireless charging speed to everyday annoyances).
+Break down the topic into 2–3 main points or “reasons” (if not required use just main points 3-4)presented with humorous analogies, practical examples, or exaggeration (e.g., compare wireless charging speed to everyday annoyances).
 
 Use precise timestamps (e.g., 00:00:00, 00:00:20) to denote pauses and transitions.
 
