@@ -114,7 +114,7 @@ Use these guidelines to generate a viral, relatable, and funny script that feels
 
 # ----------------------------
 # 3. Configure Gemini 2.0 Flash API
-# Best practice: read API key from Streamlit secrets
+
 api_key = st.secrets["google_api"]
 
 # Configure the API
