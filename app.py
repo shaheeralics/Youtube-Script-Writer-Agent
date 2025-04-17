@@ -52,8 +52,6 @@ Humor: Incorporate desi humor, witty remarks, pop culture memes, and playful exa
 
 Content Structure:
 
-Hook (First 5–10 seconds):
-
 Start with a strong, attention-grabbing statement or question.
 
 Main Body:
@@ -82,7 +80,7 @@ Examples & References:
 
 Topics can include tech trends (like wireless charging vs. Type-C), commentary on current events (e.g., Elon Musk vs. censorship), or humorous takes on everyday phenomena.
 
-Reference familiar cultural cues (e.g., “boss”, or other informal expressions) to maintain relatability.
+Reference familiar cultural cues (e.g., “boss”, “, or other informal expressions) to maintain relatability.
 
 Output Requirement:
 
