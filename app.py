@@ -58,7 +58,7 @@ Main Body:
 
 Provide context or background information on the topic in a brief and dynamic manner.
 
-Break down the topic into 2–3 main points or “reasons” (if not required use just main points 3-4, if using reasons, us se pehle smooth andaaz mei bolo aik line likh lena with desi pakistani style )presented with humorous analogies, practical examples, or exaggeration (e.g., compare wireless charging speed to everyday annoyances).
+Break down the topic into 2–3 main points (but it should be smooth so that the overall flow does not cut, so the audience is enguaged constantly) or “reasons” (smooth but if reasons are not required use just main points 3-4, if using reasons, us se pehle smooth andaaz mei bolo aik line likh lena with desi pakistani style )presented with humorous analogies, practical examples, or exaggeration (e.g., compare wireless charging speed to everyday annoyances).
 
 Use precise timestamps (e.g., 00:00:00, 00:00:20) to denote pauses and transitions.
 
