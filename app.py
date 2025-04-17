@@ -94,6 +94,8 @@ Ensure the content is original, engaging, and maintains the same style and quali
 Important Thing To Note:
 Do not add any extra commentary like 'Okay, here's the script:' 'hope you like it' at the beginning or end.
 
+ye kya ho raha hai bhai nahi kehna is mei
+
 Use these guidelines to generate a viral, relatable, and funny script that feels authentic and original."
 "Now generate a script on the topic: "
         '''
