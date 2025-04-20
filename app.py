@@ -16,13 +16,13 @@ def load_sample_scripts(file_path="sample_scripts.docx"):
 sample_scripts = load_sample_scripts()  # Reads from sample_scripts.docx
 
 # ----------------------------
-# 2. Load Prompt from DOCX
+# 2. Load Prompt from TXT
 # ----------------------------
-def load_prompt(file_path="prompt.docx"):
+def load_prompt(file_path="prompt.txt"):
     if not os.path.exists(file_path):
         return ""
-    document = Document(file_path)
-    return "\n".join([p.text.strip() for p in document.paragraphs if p.text.strip()])
+    with open(file_path, "r", encoding="utf-8") as file:
+        return file.read()
 
 # Load the prompt from the external file
 base_prompt = load_prompt()
