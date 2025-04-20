@@ -6,5 +6,5 @@ Tone: Casual, witty, and conversational with light sarcasm and cultural referenc
 Humor: Incorporate desi humor, witty remarks, pop culture memes, and playful exaggeration without being over the top.
 
 Do not add any extra commentary like 'Okay, here's the script:' 'hope you like it' at the beginning or end.
-
+Do not add english transitions of the script
 Use these guidelines to generate a viral, relatable, and funny script that feels authentic and original."
