@@ -4,8 +4,13 @@ from docx import Document
 import google.generativeai as genai
 import io
 import markdown
-import base64
-from xhtml2pdf import pisa
+import re
+from bs4 import BeautifulSoup
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Preformatted
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.enums import TA_LEFT
 
 # ----------------------------
 # 1. Load Reference Scripts from DOCX
@@ -75,99 +80,137 @@ model = genai.GenerativeModel("gemini-2.0-flash")
 # ----------------------------
 def convert_markdown_to_html(markdown_text):
     """Convert markdown text to HTML for preview display"""
-    # Convert markdown to HTML with proper styling
+    # Convert markdown to HTML
     html = markdown.markdown(markdown_text)
-    # Add basic styling to make it look better
-    styled_html = f"""
-    <style>
-        body {{ font-family: Arial, sans-serif; line-height: 1.6; }}
-        h1 {{ color: #2c3e50; font-size: 28px; margin-top: 20px; }}
-        h2 {{ color: #3498db; font-size: 22px; margin-top: 15px; }}
-        h3 {{ font-size: 18px; margin-top: 10px; }}
-        p {{ margin: 10px 0; }}
-        strong {{ font-weight: bold; }}
-        em {{ font-style: italic; }}
-        code {{ background-color: #f8f8f8; padding: 2px 4px; border-radius: 3px; }}
-        pre {{ background-color: #f8f8f8; padding: 10px; border-radius: 5px; overflow-x: auto; }}
-    </style>
-    {html}
-    """
-    return styled_html
-
-def convert_html_to_pdf(source_html):
-    """Convert HTML to PDF using xhtml2pdf, a pure Python library"""
-    result_file = io.BytesIO()
-    
-    # Add proper HTML structure
-    full_html = f"""
-    <!DOCTYPE html>
-    <html>
-    <head>
-    <meta charset="UTF-8">
-    <style>
-        @page {{
-            size: letter;
-            margin: 1cm;
-        }}
-        body {{
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            font-size: 12px;
-        }}
-        h1 {{
-            color: #2c3e50;
-            font-size: 24px;
-            margin-top: 20px;
-        }}
-        h2 {{
-            color: #3498db;
-            font-size: 20px;
-            margin-top: 15px;
-        }}
-        h3 {{
-            font-size: 16px;
-            margin-top: 10px;
-        }}
-        p {{
-            margin: 10px 0;
-        }}
-        strong {{
-            font-weight: bold;
-        }}
-        em {{
-            font-style: italic;
-        }}
-        code, pre {{
-            font-family: Courier, monospace;
-            background-color: #f8f8f8;
-            padding: 2px 4px;
-            border-radius: 3px;
-        }}
-    </style>
-    </head>
-    <body>
-    {source_html}
-    </body>
-    </html>
-    """
-    
-    # Convert HTML to PDF using pisa
-    pisa_status = pisa.CreatePDF(full_html, dest=result_file)
-    
-    # Return PDF data if successful
-    if pisa_status.err:
-        raise Exception("PDF conversion failed")
-    
-    result_file.seek(0)
-    return result_file.getvalue()
+    return html
 
 def markdown_to_pdf(markdown_text):
-    """Convert markdown to PDF"""
-    # First convert markdown to HTML (without the style tags for xhtml2pdf)
+    """Convert markdown text to properly formatted PDF preserving formatting"""
+    buffer = io.BytesIO()
+    
+    # Create PDF document
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    
+    # Create styles - only get the sample stylesheet once
+    styles = getSampleStyleSheet()
+    
+    # Convert markdown to HTML
     html = markdown.markdown(markdown_text)
     
-    # Then convert HTML to PDF
-    return convert_html_to_pdf(html)
+    # Parse the HTML
+    soup = BeautifulSoup(html, 'html.parser')
+    
+    # Create the story (content)
+    story = []
+    
+    # Process each HTML element
+    for element in soup.find_all(['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'pre', 'code']):
+        if element.name in ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
+            heading_level = int(element.name[1])
+            # Use the built-in heading styles that come with getSampleStyleSheet()
+            if heading_level == 1:
+                style_name = 'Heading1'
+            elif heading_level == 2:
+                style_name = 'Heading2'
+            else:
+                style_name = 'Heading3'
+                
+            story.append(Paragraph(element.text, styles[style_name]))
+        
+        elif element.name == 'p':
+            # Process paragraph, handling bold and italic
+            text = str(element)
+            
+            # Replace HTML bold and italic tags with ReportLab equivalents
+            text = text.replace('<strong>', '<b>').replace('</strong>', '</b>')
+            text = text.replace('<em>', '<i>').replace('</em>', '</i>')
+            
+            # Strip the outer <p> tags
+            text = re.sub(r'^<p>(.*)</p>$', r'\1', text)
+            
+            # Handle any remaining HTML entities
+            text = BeautifulSoup(text, 'html.parser').text
+            
+            # Create paragraph with styling
+            try:
+                para = Paragraph(text, styles['Normal'])
+                story.append(para)
+            except:
+                # Fallback for problematic text
+                para = Paragraph(text.encode('ascii', 'replace').decode('ascii'), styles['Normal'])
+                story.append(para)
+        
+        elif element.name == 'pre' or element.name == 'code':
+            # Format code blocks with monospaced font
+            code_text = element.text
+            try:
+                pre = Preformatted(code_text, styles['Code'])
+                story.append(pre)
+                story.append(Spacer(1, 6))
+            except:
+                # Fallback
+                pre = Paragraph(code_text.encode('ascii', 'replace').decode('ascii'), styles['Code'])
+                story.append(pre)
+                story.append(Spacer(1, 6))
+    
+    # Add content to PDF
+    try:
+        doc.build(story)
+    except Exception as e:
+        # Fallback to simple PDF if complex formatting fails
+        return simple_pdf_generation(markdown_text)
+    
+    buffer.seek(0)
+    return buffer.getvalue()
+
+
+# Fallback PDF generation function with basic formatting
+def simple_pdf_generation(text):
+    """Simple PDF generation with basic formatting"""
+    buffer = io.BytesIO()
+    
+    # Convert markdown to HTML first to parse the formatting
+    html = markdown.markdown(text)
+    soup = BeautifulSoup(html, 'html.parser')
+    
+    # Extract text with basic formatting indicators
+    formatted_text = ""
+    for element in soup.find_all(['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']):
+        if element.name.startswith('h'):
+            level = int(element.name[1])
+            formatted_text += f"{'#' * level} {element.text}\n\n"
+        else:
+            formatted_text += f"{element.text}\n\n"
+    
+    # Create the PDF document
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    styles = getSampleStyleSheet()
+    
+    # Create a story with simplified formatting
+    story = []
+    
+    for paragraph in formatted_text.split('\n\n'):
+        if paragraph.strip():
+            if paragraph.startswith('#'):
+                # It's a heading
+                heading_level = paragraph.count('#', 0, paragraph.find(' '))
+                heading_text = paragraph[heading_level:].strip()
+                style_name = f'Heading{min(heading_level, 3)}'
+                story.append(Paragraph(heading_text, styles[style_name]))
+            else:
+                # Regular paragraph
+                try:
+                    story.append(Paragraph(paragraph, styles['Normal']))
+                except:
+                    # Handle encoding issues
+                    safe_text = paragraph.encode('ascii', 'replace').decode('ascii')
+                    story.append(Paragraph(safe_text, styles['Normal']))
+    
+    # Build the document
+    doc.build(story)
+    
+    buffer.seek(0)
+    return buffer.getvalue()
 
 # ----------------------------
 # 6. Streamlit App Layout & Settings
@@ -212,10 +255,10 @@ if st.button("Generate Script") and topic_input:
 if st.session_state.current_script:
     st.subheader("Generated Script:")
     
-    # Show only preview using the styled HTML
+    # Show only preview (no raw text)
     st.subheader("Preview:")
-    styled_html = convert_markdown_to_html(st.session_state.current_script)
-    st.markdown(styled_html, unsafe_allow_html=True)
+    html = convert_markdown_to_html(st.session_state.current_script)
+    st.markdown(html, unsafe_allow_html=True)
     
     # Edit button/expander (hidden by default)
     with st.expander("Edit Script", expanded=False):
@@ -238,7 +281,7 @@ if st.session_state.current_script:
     with col2:
         # Download as PDF with error handling
         try:
-            # Generate PDF with exactly the same styling as the preview
+            # Generate PDF with markdown formatting preserved
             pdf_data = markdown_to_pdf(st.session_state.current_script)
             
             st.download_button(
