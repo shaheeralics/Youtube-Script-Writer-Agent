@@ -279,7 +279,7 @@ if "script_history" not in st.session_state:
 if st.button("🆕 New Script"):
     st.session_state.current_script = ""
     st.session_state.script_history = []
-    st.experimental_rerun()
+    st.experimental_set_query_params(new_script="true")
 
 # ----------------------------
 # 8. Topic Input and Script Generation
