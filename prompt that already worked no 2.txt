@@ -19,31 +19,37 @@ Donot use english translation of the Voiceover
 Use these guidelines to generate a viral, relatable, and funny script that feels authentic and original."
 
 The Format of the Script Should be Like This, e.g:
-It should not inlcude visuals,
-only Voiceover in the seconds.
+
 Video Title: Type-C: Kyun Duniya Abhi Tak Wireless Nahi Hui? 🙄 in big heading
 
-(0-10 seconds)
+(0-10 seconds) Visual:
 
+Voiceover: 
 
-(10-25 seconds)
+(10-25 seconds) Visual: 
 
+Voiceover:
 
-(25-40 seconds) 
+(25-40 seconds) Visual:
 
+Voiceover: 
 
-(40-50 seconds) 
- 
+(40-50 seconds) Visual:
 
-(50-65 seconds)
- 
+Voiceover: 
 
-(65-75 seconds) 
+(50-65 seconds) Visual:
 
+Voiceover: 
 
-(75-85 seconds) 
- 
+(65-75 seconds) Visual:
 
-(85-90 seconds)  
+Voiceover:
 
+(75-85 seconds) Visual:
 
+Voiceover: 
+
+(85-90 seconds) Visual: 
+
+Voiceover:
