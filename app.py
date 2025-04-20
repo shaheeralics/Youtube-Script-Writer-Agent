@@ -88,7 +88,7 @@ if "script_history" not in st.session_state:
 if st.button("🆕 New Script"):
     st.session_state.current_script = ""
     st.session_state.script_history = []
-    st.rerun()  # Using st.rerun() instead of st.experimental_rerun()
+    st.experimental_rerun()
 
 # ----------------------------
 # 7. Topic Input and Script Generation
@@ -137,7 +137,7 @@ if st.session_state.current_script:
             updated_full_script = "\n\n".join(paragraphs)
             st.session_state.current_script = updated_full_script
             st.success("Paragraph updated!")
-            st.rerun()  # Using st.rerun() instead of st.experimental_rerun()
+            st.experimental_rerun()
 
 # ----------------------------
 # 10. Display Full Script History (if needed)
