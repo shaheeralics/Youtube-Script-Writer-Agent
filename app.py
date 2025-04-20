@@ -3,16 +3,14 @@ import streamlit as st
 from docx import Document
 import google.generativeai as genai
 import io
-from reportlab.pdfgen import canvas
-from reportlab.lib.pagesizes import letter
-from reportlab.pdfbase import pdfmetrics
-from reportlab.pdfbase.ttfonts import TTFont
 import markdown
 import re
 from bs4 import BeautifulSoup
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Preformatted
-from reportlab.lib.enums import TA_JUSTIFY, TA_LEFT, TA_CENTER, TA_RIGHT
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.enums import TA_LEFT
 
 # ----------------------------
 # 1. Load Reference Scripts from DOCX
@@ -93,36 +91,8 @@ def markdown_to_pdf(markdown_text):
     # Create PDF document
     doc = SimpleDocTemplate(buffer, pagesize=letter)
     
-    # Create styles
+    # Create styles - only get the sample stylesheet once
     styles = getSampleStyleSheet()
-    
-    # Add custom styles
-    styles.add(ParagraphStyle(
-        name='Heading1',
-        parent=styles['Heading1'],
-        fontSize=18,
-        spaceAfter=12
-    ))
-    styles.add(ParagraphStyle(
-        name='Heading2',
-        parent=styles['Heading2'],
-        fontSize=16,
-        spaceAfter=10
-    ))
-    styles.add(ParagraphStyle(
-        name='Heading3',
-        parent=styles['Heading3'],
-        fontSize=14,
-        spaceAfter=8
-    ))
-    styles.add(ParagraphStyle(
-        name='BodyText',
-        parent=styles['BodyText'],
-        fontSize=12,
-        leading=14,
-        alignment=TA_LEFT,
-        spaceAfter=10
-    ))
     
     # Convert markdown to HTML
     html = markdown.markdown(markdown_text)
@@ -137,7 +107,14 @@ def markdown_to_pdf(markdown_text):
     for element in soup.find_all(['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'pre', 'code']):
         if element.name in ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
             heading_level = int(element.name[1])
-            style_name = f'Heading{min(heading_level, 3)}'  # Only using Heading1-3
+            # Use the built-in heading styles that come with getSampleStyleSheet()
+            if heading_level == 1:
+                style_name = 'Heading1'
+            elif heading_level == 2:
+                style_name = 'Heading2'
+            else:
+                style_name = 'Heading3'
+                
             story.append(Paragraph(element.text, styles[style_name]))
         
         elif element.name == 'p':
@@ -156,15 +133,15 @@ def markdown_to_pdf(markdown_text):
             
             # Create paragraph with styling
             try:
-                para = Paragraph(text, styles['BodyText'])
+                para = Paragraph(text, styles['Normal'])
                 story.append(para)
             except:
                 # Fallback for problematic text
-                para = Paragraph(text.encode('ascii', 'replace').decode('ascii'), styles['BodyText'])
+                para = Paragraph(text.encode('ascii', 'replace').decode('ascii'), styles['Normal'])
                 story.append(para)
         
         elif element.name == 'pre' or element.name == 'code':
-            # Format code blocks with monospaced font and box
+            # Format code blocks with monospaced font
             code_text = element.text
             try:
                 pre = Preformatted(code_text, styles['Code'])
@@ -223,11 +200,11 @@ def simple_pdf_generation(text):
             else:
                 # Regular paragraph
                 try:
-                    story.append(Paragraph(paragraph, styles['BodyText']))
+                    story.append(Paragraph(paragraph, styles['Normal']))
                 except:
                     # Handle encoding issues
                     safe_text = paragraph.encode('ascii', 'replace').decode('ascii')
-                    story.append(Paragraph(safe_text, styles['BodyText']))
+                    story.append(Paragraph(safe_text, styles['Normal']))
     
     # Build the document
     doc.build(story)
