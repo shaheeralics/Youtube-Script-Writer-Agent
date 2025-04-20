@@ -85,10 +85,13 @@ if "current_script" not in st.session_state:
 if "script_history" not in st.session_state:
     st.session_state.script_history = []
 
-if st.button("🆕 New Script"):
+# Function to reset the state when New Script button is clicked
+def reset_script_state():
     st.session_state.current_script = ""
     st.session_state.script_history = []
-    st.experimental_rerun()
+
+# New Script button with callback function
+st.button("🆕 New Script", on_click=reset_script_state)
 
 # ----------------------------
 # 7. Topic Input and Script Generation
