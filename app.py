@@ -107,10 +107,20 @@ if st.button("Generate Script") and topic_input:
 # ----------------------------
 if st.session_state.current_script:
     st.subheader("Generated Script:")
-    updated_script = st.text_area("Your YouTube Script (editable):", st.session_state.current_script, height=300)
-    # Save any manual edits back to the session state
-    st.session_state.current_script = updated_script
+    
+    # Create tabs for different views of the script
+    tab1, tab2 = st.tabs(["Editable Text", "Markdown Preview"])
+    
+    # Tab 1: Editable text version
+    with tab1:
+        updated_script = st.text_area("Your YouTube Script (editable):", st.session_state.current_script, height=300)
+        # Save any manual edits back to the session state
+        st.session_state.current_script = updated_script
 
+    # Tab 2: Markdown rendered version
+    with tab2:
+        st.markdown(st.session_state.current_script)
+    
     # Download button: Download the current script as a text file
     st.download_button(
         label="Download Script",
@@ -145,7 +155,11 @@ if st.session_state.current_script:
 if st.session_state.script_history:
     st.subheader("Previously Generated Scripts:")
     for idx, script in enumerate(st.session_state.script_history, start=1):
-        st.text_area(f"Script {idx}", script, height=150)
+        hist_tab1, hist_tab2 = st.tabs([f"Script {idx} (Text)", f"Script {idx} (Markdown)"])
+        with hist_tab1:
+            st.text_area(f"Script {idx}", script, height=150)
+        with hist_tab2:
+            st.markdown(script)
 
 # ----------------------------
 # 11. Close App Button
