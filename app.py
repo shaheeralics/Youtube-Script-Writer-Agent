@@ -2,6 +2,11 @@ import os
 import streamlit as st
 from docx import Document
 import google.generativeai as genai
+import io
+from fpdf import FPDF
+import markdown
+import re
+from bs4 import BeautifulSoup
 
 # ----------------------------
 # 1. Load Reference Scripts from DOCX
@@ -65,8 +70,67 @@ genai.configure(api_key=api_key)
 
 # Initialize the model
 model = genai.GenerativeModel("gemini-2.0-flash")
+
 # ----------------------------
-# 5. Streamlit App Layout & Settings
+# 5. Helper Functions for Markdown and PDF Conversion
+# ----------------------------
+def convert_markdown_to_html(markdown_text):
+    """Convert markdown text to HTML for preview display"""
+    # Convert markdown to HTML
+    html = markdown.markdown(markdown_text)
+    return html
+
+def markdown_to_pdf(markdown_text):
+    """Convert markdown text to PDF for download"""
+    # Create a PDF object
+    pdf = FPDF()
+    pdf.add_page()
+    
+    # Set font
+    pdf.set_font("Arial", size=12)
+    
+    # Simple markdown parsing for basic formatting
+    # Split by paragraphs
+    paragraphs = markdown_text.split('\n\n')
+    
+    for p in paragraphs:
+        if p.strip():
+            # Check if it's a heading (starts with #)
+            if p.strip().startswith('#'):
+                heading_level = len(p.split(' ')[0])  # Count the number of #
+                heading_text = p.replace('#', '', heading_level).strip()
+                if heading_level == 1:
+                    pdf.set_font("Arial", 'B', 16)
+                elif heading_level == 2:
+                    pdf.set_font("Arial", 'B', 14)
+                else:
+                    pdf.set_font("Arial", 'B', 12)
+                pdf.cell(0, 10, txt=heading_text, ln=True)
+                pdf.set_font("Arial", size=12)  # Reset font
+            else:
+                # Regular paragraph
+                # Handle bold and italic basic formatting
+                processed_text = p
+                
+                # Handle bold text (enclosed in ** or __)
+                bold_pattern = r'\*\*(.*?)\*\*|__(.*?)__'
+                for match in re.finditer(bold_pattern, p):
+                    bold_text = match.group(1) or match.group(2)
+                    processed_text = processed_text.replace(match.group(0), bold_text)
+                
+                # Add text to PDF with line breaks for long paragraphs
+                pdf.multi_cell(0, 10, txt=processed_text)
+                pdf.ln(5)  # Add some space between paragraphs
+    
+    # Convert PDF to bytes
+    pdf_bytes = io.BytesIO()
+    pdf.output(pdf_bytes)
+    pdf_bytes.seek(0)
+    
+    return pdf_bytes.getvalue()
+
+# ----------------------------
+# 6. Streamlit App Layout & Settings
 # ----------------------------
 st.set_page_config(page_title="YouTube Script Generator", page_icon="🎬")
 st.title("🎬 YouTube Script Generator")
@@ -78,7 +142,7 @@ script_length = st.sidebar.selectbox("Script Length", ["Short", "Medium", "Long"
 # (You could further modify the prompt based on the chosen length)
 
 # ----------------------------
-# 6. Session State & Script Storage
+# 7. Session State & Script Storage
 # ----------------------------
 if "current_script" not in st.session_state:
     st.session_state.current_script = ""
@@ -91,7 +155,7 @@ if st.button("🆕 New Script"):
     st.experimental_rerun()
 
 # ----------------------------
-# 7. Topic Input and Script Generation
+# 8. Topic Input and Script Generation
 # ----------------------------
 topic_input = st.text_input("Enter the topic for your YouTube script:")
 
@@ -103,34 +167,42 @@ if st.button("Generate Script") and topic_input:
     st.success("Script generated successfully!")
 
 # ----------------------------
-# 8. Display the Generated Script and Download Option
+# 9. Display the Generated Script and Download Option
 # ----------------------------
 if st.session_state.current_script:
     st.subheader("Generated Script:")
+    # Text area for editing the script
+    updated_script = st.text_area("Your YouTube Script (editable):", st.session_state.current_script, height=300)
+    # Save any manual edits back to the session state
+    st.session_state.current_script = updated_script
     
-    # Create tabs for different views of the script
-    tab1, tab2 = st.tabs(["Editable Text", "Markdown Preview"])
+    # Preview section - Display the script with markdown formatting
+    st.subheader("Preview:")
+    html = convert_markdown_to_html(st.session_state.current_script)
+    st.markdown(html, unsafe_allow_html=True)
     
-    # Tab 1: Editable text version
-    with tab1:
-        updated_script = st.text_area("Your YouTube Script (editable):", st.session_state.current_script, height=300)
-        # Save any manual edits back to the session state
-        st.session_state.current_script = updated_script
-
-    # Tab 2: Markdown rendered version
-    with tab2:
-        st.markdown(st.session_state.current_script)
-    
-    # Download button: Download the current script as a text file
-    st.download_button(
-        label="Download Script",
-        data=st.session_state.current_script,
-        file_name="youtube_script.txt",
-        mime="text/plain"
-    )
+    # Download buttons
+    col1, col2 = st.columns(2)
+    with col1:
+        # Download as text file
+        st.download_button(
+            label="Download as Text",
+            data=st.session_state.current_script,
+            file_name="youtube_script.txt",
+            mime="text/plain"
+        )
+    with col2:
+        # Download as PDF
+        pdf_data = markdown_to_pdf(st.session_state.current_script)
+        st.download_button(
+            label="Download as PDF",
+            data=pdf_data,
+            file_name="youtube_script.pdf",
+            mime="application/pdf"
+        )
 
 # ----------------------------
-# 9. Modify a Specific Paragraph
+# 10. Modify a Specific Paragraph
 # ----------------------------
 if st.session_state.current_script:
     st.subheader("Modify a Specific Paragraph")
@@ -150,19 +222,15 @@ if st.session_state.current_script:
             st.experimental_rerun()
 
 # ----------------------------
-# 10. Display Full Script History (if needed)
+# 11. Display Full Script History (if needed)
 # ----------------------------
 if st.session_state.script_history:
     st.subheader("Previously Generated Scripts:")
     for idx, script in enumerate(st.session_state.script_history, start=1):
-        hist_tab1, hist_tab2 = st.tabs([f"Script {idx} (Text)", f"Script {idx} (Markdown)"])
-        with hist_tab1:
-            st.text_area(f"Script {idx}", script, height=150)
-        with hist_tab2:
-            st.markdown(script)
+        st.text_area(f"Script {idx}", script, height=150)
 
 # ----------------------------
-# 11. Close App Button
+# 12. Close App Button
 # ----------------------------
 if st.sidebar.button("Close App"):
     st.warning("The app is closing...")

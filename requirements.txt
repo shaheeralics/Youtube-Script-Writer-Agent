@@ -2,3 +2,6 @@ Flask
 python-docx
 google-generativeai
 streamlit
+fpdf
+markdown
+beautifulsoup4
