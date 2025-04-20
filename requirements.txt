@@ -2,6 +2,6 @@ Flask
 python-docx
 google-generativeai
 streamlit
-reportlab
 markdown
 beautifulsoup4
+weasyprint
