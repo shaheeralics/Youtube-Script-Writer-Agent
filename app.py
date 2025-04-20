@@ -74,23 +74,110 @@ model = genai.GenerativeModel("gemini-2.0-flash")
 # 5. Helper Functions for Markdown and PDF Conversion
 # ----------------------------
 def convert_markdown_to_html(markdown_text):
-    """Convert markdown text to HTML for preview display"""
+    """Convert markdown text to HTML for preview display with enhanced styling"""
     # Convert markdown to HTML with proper styling
-    html = markdown.markdown(markdown_text)
-    # Add basic styling to make it look better
+    html = markdown.markdown(markdown_text, extensions=['tables', 'fenced_code', 'codehilite'])
+    
+    # Add enhanced styling to make the preview look more professional
     styled_html = f"""
-    <style>
-        body {{ font-family: Arial, sans-serif; line-height: 1.6; }}
-        h1 {{ color: #2c3e50; font-size: 28px; margin-top: 20px; }}
-        h2 {{ color: #3498db; font-size: 22px; margin-top: 15px; }}
-        h3 {{ font-size: 18px; margin-top: 10px; }}
-        p {{ margin: 10px 0; }}
-        strong {{ font-weight: bold; }}
-        em {{ font-style: italic; }}
-        code {{ background-color: #f8f8f8; padding: 2px 4px; border-radius: 3px; }}
-        pre {{ background-color: #f8f8f8; padding: 10px; border-radius: 5px; overflow-x: auto; }}
-    </style>
-    {html}
+    <div style="padding: 20px; border-radius: 8px; border: 1px solid #e0e0e0; background-color: white; box-shadow: 0 2px 10px rgba(0,0,0,0.05);">
+        <style>
+            .markdown-preview {{
+                font-family: 'Segoe UI', Arial, sans-serif;
+                line-height: 1.8;
+                color: #333;
+            }}
+            .markdown-preview h1 {{
+                color: #1e88e5;
+                font-size: 26px;
+                margin-top: 30px;
+                margin-bottom: 15px;
+                padding-bottom: 10px;
+                border-bottom: 1px solid #f0f0f0;
+            }}
+            .markdown-preview h2 {{
+                color: #0d47a1; 
+                font-size: 22px;
+                margin-top: 25px;
+                margin-bottom: 12px;
+                padding-bottom: 8px;
+            }}
+            .markdown-preview h3 {{
+                color: #2962ff;
+                font-size: 18px;
+                margin-top: 20px;
+                margin-bottom: 10px;
+            }}
+            .markdown-preview p {{
+                margin: 15px 0;
+                font-size: 16px;
+                text-align: justify;
+            }}
+            .markdown-preview strong {{
+                font-weight: 600;
+                color: #0277bd;
+            }}
+            .markdown-preview em {{
+                font-style: italic;
+                color: #444;
+            }}
+            .markdown-preview code {{
+                background-color: #f8f9fa;
+                padding: 3px 6px;
+                border-radius: 4px;
+                border: 1px solid #eee;
+                font-family: 'Consolas', 'Monaco', monospace;
+                font-size: 14px;
+            }}
+            .markdown-preview pre {{
+                background-color: #f8f9fa;
+                padding: 15px;
+                border-radius: 6px;
+                border: 1px solid #eee;
+                overflow-x: auto;
+            }}
+            .markdown-preview ul, .markdown-preview ol {{
+                margin-top: 10px;
+                margin-bottom: 10px;
+                padding-left: 25px;
+            }}
+            .markdown-preview li {{
+                margin: 5px 0;
+            }}
+            .markdown-preview blockquote {{
+                border-left: 4px solid #64b5f6;
+                padding: 10px 15px;
+                margin: 15px 0;
+                background-color: #e3f2fd;
+                font-style: italic;
+            }}
+            .markdown-preview hr {{
+                border: none;
+                height: 1px;
+                background-color: #e0e0e0;
+                margin: 20px 0;
+            }}
+            .markdown-preview img {{
+                max-width: 100%;
+                height: auto;
+                border-radius: 6px;
+                margin: 15px 0;
+            }}
+            /* Special styling for timestamps in YouTube scripts */
+            .markdown-preview p:first-line {{
+                font-weight: 500;
+            }}
+            /* Any text that looks like a timestamp (00:00:00) gets highlighted */
+            .markdown-preview p:contains("00:") {{
+                background-color: #f1f8e9;
+                padding: 5px;
+                border-radius: 4px;
+            }}
+        </style>
+        <div class="markdown-preview">
+            {html}
+        </div>
+    </div>
     """
     return styled_html
 
@@ -212,8 +299,10 @@ if st.button("Generate Script") and topic_input:
 if st.session_state.current_script:
     st.subheader("Generated Script:")
     
-    # Show only preview using the styled HTML
-    st.subheader("Preview:")
+    # Create a clean and professional preview container
+    st.markdown("<h3 style='margin-bottom: 15px; color: #0d47a1;'>📝 Preview</h3>", unsafe_allow_html=True)
+    
+    # Show enhanced preview
     styled_html = convert_markdown_to_html(st.session_state.current_script)
     st.markdown(styled_html, unsafe_allow_html=True)
     
@@ -225,12 +314,13 @@ if st.session_state.current_script:
             st.session_state.current_script = updated_script
             st.experimental_rerun()  # Refresh to show updated preview
     
-    # Download buttons
+    # Download buttons with improved layout
+    st.markdown("<div style='margin-top: 20px;'></div>", unsafe_allow_html=True)
     col1, col2 = st.columns(2)
     with col1:
         # Download as text file
         st.download_button(
-            label="Download as Text",
+            label="📄 Download as Text",
             data=st.session_state.current_script,
             file_name="youtube_script.txt",
             mime="text/plain"
@@ -238,11 +328,11 @@ if st.session_state.current_script:
     with col2:
         # Download as PDF with error handling
         try:
-            # Generate PDF with exactly the same styling as the preview
+            # Generate PDF with styling (keep the existing PDF generation code)
             pdf_data = markdown_to_pdf(st.session_state.current_script)
             
             st.download_button(
-                label="Download as PDF",
+                label="📕 Download as PDF",
                 data=pdf_data,
                 file_name="youtube_script.pdf",
                 mime="application/pdf"
