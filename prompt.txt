@@ -10,6 +10,8 @@ just start with the topic, with Sensitive dialogue about the topic, so that peop
 Use time stamps of 10 secs or 15 secs.
 The Maximum Duration of A short video is 1 min 30 sec, so the video should be less then it.
 
+As the Sample scripts have end subscribe lines, use same taste in my script also, for subscribe in the end
+
 Do not add any extra material in the response like 'Okay, here's the script:' 'hope you like it' at the beginning or end.
 
 Use these guidelines to generate a viral, relatable, and funny script that feels authentic and original."
