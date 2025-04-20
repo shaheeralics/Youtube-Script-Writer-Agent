@@ -16,7 +16,19 @@ def load_sample_scripts(file_path="sample_scripts.docx"):
 sample_scripts = load_sample_scripts()  # Reads from sample_scripts.docx
 
 # ----------------------------
-# 2. YouTube Script Generation Function
+# 2. Load Prompt from DOCX
+# ----------------------------
+def load_prompt(file_path="prompt.docx"):
+    if not os.path.exists(file_path):
+        return ""
+    document = Document(file_path)
+    return "\n".join([p.text.strip() for p in document.paragraphs if p.text.strip()])
+
+# Load the prompt from the external file
+base_prompt = load_prompt()
+
+# ----------------------------
+# 3. YouTube Script Generation Function
 # ----------------------------
 def generate_youtube_script(topic):
     """
@@ -28,85 +40,14 @@ def generate_youtube_script(topic):
     if sample_scripts:
         reference = max(sample_scripts, key=lambda s: s.lower().count(topic.lower()))
     
-    # Define the prompt template for your Youtube Script Writer Agent
-    base_prompt = (
-        '''
-        Prompt Title:
-"Generate an Engaging, Humorous, and Informative Short-Form Script in Roman Urdu"
-
-Prompt Instructions:
-
-Role & Context:
-
-You are a creative content/scriptwriter producing short-form videos (YouTube Shorts, Instagram Reels, TikTok).
-
-Your scripts combine humor, satire, and facts while being relatable to a modern Pakistani or South Asian audience.
-
-Tone & Style:
-
-Tone: Casual, witty, and conversational with light sarcasm and cultural references.
-
-Language: Use Roman Urdu predominantly, mixed with simple English phrases. The language should mimic how a Pakistani millennial speaks—informal, trendy, and engaging.
-
-Humor: Incorporate desi humor, witty remarks, pop culture memes, and playful exaggeration without being over the top.
-
-Content Structure:
-
-Start with a strong, attention-grabbing statement or question.
-
-Main Body:
-
-Provide context or background information on the topic in a brief and dynamic manner.
-
-Break down the topic into 2–3 main points (but it should be smooth so that the overall flow does not cut, so the audience is enguaged constantly) or “reasons” (smooth but if reasons are not required use just main points 3-4, if using reasons, us se pehle smooth andaaz mei bolo aik line likh lena with desi pakistani style )presented with humorous analogies, practical examples, or exaggeration (e.g., compare wireless charging speed to everyday annoyances).
-
-Use precise timestamps (e.g., 00:00:00, 00:00:20) to denote pauses and transitions.
-
-Conclusion:
-
-End with a punchline or moral statement that ties the humor and information together.
-
-Optionally include a sarcastic remark or rhetorical question to keep it light.
-
-Script Length & Formatting:
-
-The entire script should be under 90 seconds (aim for 150–180 words maximum).
-
-Use timestamps at regular intervals to structure the flow (e.g., 00:00:00, 00:00:20, 00:00:35, etc.).
-
-Ensure the script is segmented into clear, logical parts with natural conversational transitions.
-
-Examples & References:
-
-Topics can include tech trends (like wireless charging vs. Type-C), commentary on current events (e.g., Elon Musk vs. censorship), or humorous takes on everyday phenomena.
-
-Reference familiar cultural cues (use hindi informal expressions) to maintain relatability.
-
-Output Requirement:
-
-Donot use unsmooth script at the start like"00:00:00 Arey yaar, Elon bhai… yeh kya chakkar hai?", use smooth startup (e.g, elon musk ne apni company khud hi kharid li) with smooth next sentence,
-
-As the sample script have used Tech iEla in the last for subscribe in non casual way, my channel name is TechFela, and you are the script writer for its shorts videos.
-
-you should generate a short script on a given topic using the guidelines above.
-
-Ensure the content is original, engaging, and maintains the same style and quality as the referenced samples.
-Important Thing To Note:
-Do not add any extra commentary like 'Okay, here's the script:' 'hope you like it' at the beginning or end.
-
-ye kya ho raha hai bhai nahi kehna is mei
-
-Use these guidelines to generate a viral, relatable, and funny script that feels authentic and original."
-"Now generate a script on the topic: "
-        '''
-        "The topic is: {}.\n\n"
-    ).format(topic)
+    # Append the topic to the base prompt
+    full_prompt = base_prompt + "\n\nThe topic of the script is: {}.".format(topic)
     
     if reference:
-        base_prompt += "Reference Script Excerpts:\n" + reference + "\n\n"
+        full_prompt += "\n\nReference Script Excerpts:\n" + reference + "\n\n"
     
     try:
-        response = model.generate_content(base_prompt)
+        response = model.generate_content(full_prompt)
         if response.text:
             return response.text.strip()
         else:
@@ -115,7 +56,7 @@ Use these guidelines to generate a viral, relatable, and funny script that feels
         return f"Error generating script: {e}"
 
 # ----------------------------
-# 3. Configure Gemini 2.0 Flash API
+# 4. Configure Gemini 2.0 Flash API
 
 api_key = st.secrets["google_api"]
 
@@ -125,7 +66,7 @@ genai.configure(api_key=api_key)
 # Initialize the model
 model = genai.GenerativeModel("gemini-2.0-flash")
 # ----------------------------
-# 4. Streamlit App Layout & Settings
+# 5. Streamlit App Layout & Settings
 # ----------------------------
 st.set_page_config(page_title="YouTube Script Generator", page_icon="🎬")
 st.title("🎬 YouTube Script Generator")
@@ -137,7 +78,7 @@ script_length = st.sidebar.selectbox("Script Length", ["Short", "Medium", "Long"
 # (You could further modify the prompt based on the chosen length)
 
 # ----------------------------
-# 5. Session State & Script Storage
+# 6. Session State & Script Storage
 # ----------------------------
 if "current_script" not in st.session_state:
     st.session_state.current_script = ""
@@ -150,7 +91,7 @@ if st.button("🆕 New Script"):
     st.experimental_rerun()
 
 # ----------------------------
-# 6. Topic Input and Script Generation
+# 7. Topic Input and Script Generation
 # ----------------------------
 topic_input = st.text_input("Enter the topic for your YouTube script:")
 
@@ -162,7 +103,7 @@ if st.button("Generate Script") and topic_input:
     st.success("Script generated successfully!")
 
 # ----------------------------
-# 7. Display the Generated Script and Download Option
+# 8. Display the Generated Script and Download Option
 # ----------------------------
 if st.session_state.current_script:
     st.subheader("Generated Script:")
@@ -179,7 +120,7 @@ if st.session_state.current_script:
     )
 
 # ----------------------------
-# 8. Modify a Specific Paragraph
+# 9. Modify a Specific Paragraph
 # ----------------------------
 if st.session_state.current_script:
     st.subheader("Modify a Specific Paragraph")
@@ -199,7 +140,7 @@ if st.session_state.current_script:
             st.experimental_rerun()
 
 # ----------------------------
-# 9. Display Full Script History (if needed)
+# 10. Display Full Script History (if needed)
 # ----------------------------
 if st.session_state.script_history:
     st.subheader("Previously Generated Scripts:")
@@ -207,7 +148,7 @@ if st.session_state.script_history:
         st.text_area(f"Script {idx}", script, height=150)
 
 # ----------------------------
-# 10. Close App Button
+# 11. Close App Button
 # ----------------------------
 if st.sidebar.button("Close App"):
     st.warning("The app is closing...")
