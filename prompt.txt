@@ -14,6 +14,8 @@ As the Sample scripts have end subscribe lines, use same taste in my script also
 
 Do not add any extra material in the response like 'Okay, here's the script:' 'hope you like it' at the beginning or end.
 
+Donot use english translation of the Voiceover
+
 Use these guidelines to generate a viral, relatable, and funny script that feels authentic and original."
 
 The Format of the Script Should be Like This, e.g:
