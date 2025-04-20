@@ -10,6 +10,9 @@ from reportlab.pdfbase.ttfonts import TTFont
 import markdown
 import re
 from bs4 import BeautifulSoup
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Preformatted
+from reportlab.lib.enums import TA_JUSTIFY, TA_LEFT, TA_CENTER, TA_RIGHT
 
 # ----------------------------
 # 1. Load Reference Scripts from DOCX
@@ -84,124 +87,150 @@ def convert_markdown_to_html(markdown_text):
     return html
 
 def markdown_to_pdf(markdown_text):
-    """Convert markdown text to PDF for download using ReportLab (Unicode compatible)"""
+    """Convert markdown text to properly formatted PDF preserving formatting"""
     buffer = io.BytesIO()
     
-    # Create the PDF object using ReportLab
-    c = canvas.Canvas(buffer, pagesize=letter)
-    width, height = letter
+    # Create PDF document
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
     
-    # Set default font
-    pdfmetrics.registerFont(TTFont('DejaVuSans', 'DejaVuSans.ttf'))
-    c.setFont("DejaVuSans", 12)
+    # Create styles
+    styles = getSampleStyleSheet()
     
-    # Simple markdown parsing
-    y_position = height - 40  # Start from top with margin
+    # Add custom styles
+    styles.add(ParagraphStyle(
+        name='Heading1',
+        parent=styles['Heading1'],
+        fontSize=18,
+        spaceAfter=12
+    ))
+    styles.add(ParagraphStyle(
+        name='Heading2',
+        parent=styles['Heading2'],
+        fontSize=16,
+        spaceAfter=10
+    ))
+    styles.add(ParagraphStyle(
+        name='Heading3',
+        parent=styles['Heading3'],
+        fontSize=14,
+        spaceAfter=8
+    ))
+    styles.add(ParagraphStyle(
+        name='BodyText',
+        parent=styles['BodyText'],
+        fontSize=12,
+        leading=14,
+        alignment=TA_LEFT,
+        spaceAfter=10
+    ))
     
-    # Split by paragraphs
-    paragraphs = markdown_text.split('\n\n')
+    # Convert markdown to HTML
+    html = markdown.markdown(markdown_text)
     
-    for p in paragraphs:
-        if p.strip():
-            # Check if it's a heading (starts with #)
-            if p.strip().startswith('#'):
-                heading_level = len(re.match(r'^#+', p.strip()).group())
-                heading_text = p.strip()[heading_level:].strip()
-                
-                if heading_level == 1:
-                    c.setFont("DejaVuSans", 16)
-                elif heading_level == 2:
-                    c.setFont("DejaVuSans", 14)
-                else:
-                    c.setFont("DejaVuSans", 12)
-                
-                c.drawString(40, y_position, heading_text)
-                y_position -= 20
-                c.setFont("DejaVuSans", 12)
-            else:
-                # Regular paragraph - wrap text to fit page width
-                text_obj = c.beginText(40, y_position)
-                text_obj.setFont("DejaVuSans", 12)
-                
-                # Simple text wrapping
-                words = p.split()
-                line = ""
-                for word in words:
-                    test_line = line + " " + word if line else word
-                    if c.stringWidth(test_line, "DejaVuSans", 12) < width - 80:
-                        line = test_line
-                    else:
-                        text_obj.textLine(line)
-                        line = word
-                
-                if line:
-                    text_obj.textLine(line)
-                
-                c.drawText(text_obj)
-                y_position -= 40  # Move down for next paragraph
+    # Parse the HTML
+    soup = BeautifulSoup(html, 'html.parser')
+    
+    # Create the story (content)
+    story = []
+    
+    # Process each HTML element
+    for element in soup.find_all(['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'ul', 'ol', 'li', 'pre', 'code']):
+        if element.name in ['h1', 'h2', 'h3', 'h4', 'h5', 'h6']:
+            heading_level = int(element.name[1])
+            style_name = f'Heading{min(heading_level, 3)}'  # Only using Heading1-3
+            story.append(Paragraph(element.text, styles[style_name]))
+        
+        elif element.name == 'p':
+            # Process paragraph, handling bold and italic
+            text = str(element)
             
-            # Check if we need a new page
-            if y_position < 40:
-                c.showPage()
-                c.setFont("DejaVuSans", 12)
-                y_position = height - 40
+            # Replace HTML bold and italic tags with ReportLab equivalents
+            text = text.replace('<strong>', '<b>').replace('</strong>', '</b>')
+            text = text.replace('<em>', '<i>').replace('</em>', '</i>')
+            
+            # Strip the outer <p> tags
+            text = re.sub(r'^<p>(.*)</p>$', r'\1', text)
+            
+            # Handle any remaining HTML entities
+            text = BeautifulSoup(text, 'html.parser').text
+            
+            # Create paragraph with styling
+            try:
+                para = Paragraph(text, styles['BodyText'])
+                story.append(para)
+            except:
+                # Fallback for problematic text
+                para = Paragraph(text.encode('ascii', 'replace').decode('ascii'), styles['BodyText'])
+                story.append(para)
+        
+        elif element.name == 'pre' or element.name == 'code':
+            # Format code blocks with monospaced font and box
+            code_text = element.text
+            try:
+                pre = Preformatted(code_text, styles['Code'])
+                story.append(pre)
+                story.append(Spacer(1, 6))
+            except:
+                # Fallback
+                pre = Paragraph(code_text.encode('ascii', 'replace').decode('ascii'), styles['Code'])
+                story.append(pre)
+                story.append(Spacer(1, 6))
     
-    c.showPage()
-    c.save()
+    # Add content to PDF
+    try:
+        doc.build(story)
+    except Exception as e:
+        # Fallback to simple PDF if complex formatting fails
+        return simple_pdf_generation(markdown_text)
     
     buffer.seek(0)
     return buffer.getvalue()
 
-# Fallback PDF generation function that doesn't use Unicode
+
+# Fallback PDF generation function with basic formatting
 def simple_pdf_generation(text):
-    """Simple PDF generation without Unicode characters"""
-    # Filter out or replace Unicode characters
-    filtered_text = text.encode('ascii', 'replace').decode('ascii')
-    
+    """Simple PDF generation with basic formatting"""
     buffer = io.BytesIO()
     
-    # Create the PDF object using ReportLab
-    c = canvas.Canvas(buffer, pagesize=letter)
-    width, height = letter
+    # Convert markdown to HTML first to parse the formatting
+    html = markdown.markdown(text)
+    soup = BeautifulSoup(html, 'html.parser')
     
-    # Set default font
-    c.setFont("Helvetica", 12)
+    # Extract text with basic formatting indicators
+    formatted_text = ""
+    for element in soup.find_all(['p', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6']):
+        if element.name.startswith('h'):
+            level = int(element.name[1])
+            formatted_text += f"{'#' * level} {element.text}\n\n"
+        else:
+            formatted_text += f"{element.text}\n\n"
     
-    # Simple text layout
-    y_position = height - 40
+    # Create the PDF document
+    doc = SimpleDocTemplate(buffer, pagesize=letter)
+    styles = getSampleStyleSheet()
     
-    # Split by paragraphs
-    paragraphs = filtered_text.split('\n\n')
+    # Create a story with simplified formatting
+    story = []
     
-    for p in paragraphs:
-        if p.strip():
-            text_obj = c.beginText(40, y_position)
-            text_obj.setFont("Helvetica", 12)
-            
-            # Simple text wrapping
-            words = p.split()
-            line = ""
-            for word in words:
-                test_line = line + " " + word if line else word
-                if c.stringWidth(test_line, "Helvetica", 12) < width - 80:
-                    line = test_line
-                else:
-                    text_obj.textLine(line)
-                    line = word
-            
-            if line:
-                text_obj.textLine(line)
-            
-            c.drawText(text_obj)
-            y_position -= 40
-            
-            if y_position < 40:
-                c.showPage()
-                c.setFont("Helvetica", 12)
-                y_position = height - 40
+    for paragraph in formatted_text.split('\n\n'):
+        if paragraph.strip():
+            if paragraph.startswith('#'):
+                # It's a heading
+                heading_level = paragraph.count('#', 0, paragraph.find(' '))
+                heading_text = paragraph[heading_level:].strip()
+                style_name = f'Heading{min(heading_level, 3)}'
+                story.append(Paragraph(heading_text, styles[style_name]))
+            else:
+                # Regular paragraph
+                try:
+                    story.append(Paragraph(paragraph, styles['BodyText']))
+                except:
+                    # Handle encoding issues
+                    safe_text = paragraph.encode('ascii', 'replace').decode('ascii')
+                    story.append(Paragraph(safe_text, styles['BodyText']))
     
-    c.showPage()
-    c.save()
+    # Build the document
+    doc.build(story)
     
     buffer.seek(0)
     return buffer.getvalue()
@@ -275,14 +304,9 @@ if st.session_state.current_script:
     with col2:
         # Download as PDF with error handling
         try:
-            # First try with full Unicode support
-            try:
-                pdf_data = markdown_to_pdf(st.session_state.current_script)
-            except Exception as e:
-                # Fallback to simple PDF generation on error
-                st.warning("Using simplified PDF export due to special characters in text")
-                pdf_data = simple_pdf_generation(st.session_state.current_script)
-                
+            # Generate PDF with markdown formatting preserved
+            pdf_data = markdown_to_pdf(st.session_state.current_script)
+            
             st.download_button(
                 label="Download as PDF",
                 data=pdf_data,
