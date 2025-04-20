@@ -3,7 +3,10 @@ import streamlit as st
 from docx import Document
 import google.generativeai as genai
 import io
-from fpdf import FPDF
+from reportlab.pdfgen import canvas
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfbase import pdfmetrics
+from reportlab.pdfbase.ttfonts import TTFont
 import markdown
 import re
 from bs4 import BeautifulSoup
@@ -81,15 +84,20 @@ def convert_markdown_to_html(markdown_text):
     return html
 
 def markdown_to_pdf(markdown_text):
-    """Convert markdown text to PDF for download"""
-    # Create a PDF object
-    pdf = FPDF()
-    pdf.add_page()
+    """Convert markdown text to PDF for download using ReportLab (Unicode compatible)"""
+    buffer = io.BytesIO()
     
-    # Set font
-    pdf.set_font("Arial", size=12)
+    # Create the PDF object using ReportLab
+    c = canvas.Canvas(buffer, pagesize=letter)
+    width, height = letter
     
-    # Simple markdown parsing for basic formatting
+    # Set default font
+    pdfmetrics.registerFont(TTFont('DejaVuSans', 'DejaVuSans.ttf'))
+    c.setFont("DejaVuSans", 12)
+    
+    # Simple markdown parsing
+    y_position = height - 40  # Start from top with margin
+    
     # Split by paragraphs
     paragraphs = markdown_text.split('\n\n')
     
@@ -97,37 +105,106 @@ def markdown_to_pdf(markdown_text):
         if p.strip():
             # Check if it's a heading (starts with #)
             if p.strip().startswith('#'):
-                heading_level = len(p.split(' ')[0])  # Count the number of #
-                heading_text = p.replace('#', '', heading_level).strip()
+                heading_level = len(re.match(r'^#+', p.strip()).group())
+                heading_text = p.strip()[heading_level:].strip()
+                
                 if heading_level == 1:
-                    pdf.set_font("Arial", 'B', 16)
+                    c.setFont("DejaVuSans", 16)
                 elif heading_level == 2:
-                    pdf.set_font("Arial", 'B', 14)
+                    c.setFont("DejaVuSans", 14)
                 else:
-                    pdf.set_font("Arial", 'B', 12)
-                pdf.cell(0, 10, txt=heading_text, ln=True)
-                pdf.set_font("Arial", size=12)  # Reset font
+                    c.setFont("DejaVuSans", 12)
+                
+                c.drawString(40, y_position, heading_text)
+                y_position -= 20
+                c.setFont("DejaVuSans", 12)
             else:
-                # Regular paragraph
-                # Handle bold and italic basic formatting
-                processed_text = p
+                # Regular paragraph - wrap text to fit page width
+                text_obj = c.beginText(40, y_position)
+                text_obj.setFont("DejaVuSans", 12)
                 
-                # Handle bold text (enclosed in ** or __)
-                bold_pattern = r'\*\*(.*?)\*\*|__(.*?)__'
-                for match in re.finditer(bold_pattern, p):
-                    bold_text = match.group(1) or match.group(2)
-                    processed_text = processed_text.replace(match.group(0), bold_text)
+                # Simple text wrapping
+                words = p.split()
+                line = ""
+                for word in words:
+                    test_line = line + " " + word if line else word
+                    if c.stringWidth(test_line, "DejaVuSans", 12) < width - 80:
+                        line = test_line
+                    else:
+                        text_obj.textLine(line)
+                        line = word
                 
-                # Add text to PDF with line breaks for long paragraphs
-                pdf.multi_cell(0, 10, txt=processed_text)
-                pdf.ln(5)  # Add some space between paragraphs
+                if line:
+                    text_obj.textLine(line)
+                
+                c.drawText(text_obj)
+                y_position -= 40  # Move down for next paragraph
+            
+            # Check if we need a new page
+            if y_position < 40:
+                c.showPage()
+                c.setFont("DejaVuSans", 12)
+                y_position = height - 40
     
-    # Convert PDF to bytes
-    pdf_bytes = io.BytesIO()
-    pdf.output(pdf_bytes)
-    pdf_bytes.seek(0)
+    c.showPage()
+    c.save()
     
-    return pdf_bytes.getvalue()
+    buffer.seek(0)
+    return buffer.getvalue()
+
+# Fallback PDF generation function that doesn't use Unicode
+def simple_pdf_generation(text):
+    """Simple PDF generation without Unicode characters"""
+    # Filter out or replace Unicode characters
+    filtered_text = text.encode('ascii', 'replace').decode('ascii')
+    
+    buffer = io.BytesIO()
+    
+    # Create the PDF object using ReportLab
+    c = canvas.Canvas(buffer, pagesize=letter)
+    width, height = letter
+    
+    # Set default font
+    c.setFont("Helvetica", 12)
+    
+    # Simple text layout
+    y_position = height - 40
+    
+    # Split by paragraphs
+    paragraphs = filtered_text.split('\n\n')
+    
+    for p in paragraphs:
+        if p.strip():
+            text_obj = c.beginText(40, y_position)
+            text_obj.setFont("Helvetica", 12)
+            
+            # Simple text wrapping
+            words = p.split()
+            line = ""
+            for word in words:
+                test_line = line + " " + word if line else word
+                if c.stringWidth(test_line, "Helvetica", 12) < width - 80:
+                    line = test_line
+                else:
+                    text_obj.textLine(line)
+                    line = word
+            
+            if line:
+                text_obj.textLine(line)
+            
+            c.drawText(text_obj)
+            y_position -= 40
+            
+            if y_position < 40:
+                c.showPage()
+                c.setFont("Helvetica", 12)
+                y_position = height - 40
+    
+    c.showPage()
+    c.save()
+    
+    buffer.seek(0)
+    return buffer.getvalue()
 
 # ----------------------------
 # 6. Streamlit App Layout & Settings
@@ -171,15 +248,19 @@ if st.button("Generate Script") and topic_input:
 # ----------------------------
 if st.session_state.current_script:
     st.subheader("Generated Script:")
-    # Text area for editing the script
-    updated_script = st.text_area("Your YouTube Script (editable):", st.session_state.current_script, height=300)
-    # Save any manual edits back to the session state
-    st.session_state.current_script = updated_script
     
-    # Preview section - Display the script with markdown formatting
+    # Show only preview (no raw text)
     st.subheader("Preview:")
     html = convert_markdown_to_html(st.session_state.current_script)
     st.markdown(html, unsafe_allow_html=True)
+    
+    # Edit button/expander (hidden by default)
+    with st.expander("Edit Script", expanded=False):
+        updated_script = st.text_area("Your YouTube Script (editable):", st.session_state.current_script, height=300)
+        # Save any manual edits back to the session state
+        if updated_script != st.session_state.current_script:
+            st.session_state.current_script = updated_script
+            st.experimental_rerun()  # Refresh to show updated preview
     
     # Download buttons
     col1, col2 = st.columns(2)
@@ -192,14 +273,24 @@ if st.session_state.current_script:
             mime="text/plain"
         )
     with col2:
-        # Download as PDF
-        pdf_data = markdown_to_pdf(st.session_state.current_script)
-        st.download_button(
-            label="Download as PDF",
-            data=pdf_data,
-            file_name="youtube_script.pdf",
-            mime="application/pdf"
-        )
+        # Download as PDF with error handling
+        try:
+            # First try with full Unicode support
+            try:
+                pdf_data = markdown_to_pdf(st.session_state.current_script)
+            except Exception as e:
+                # Fallback to simple PDF generation on error
+                st.warning("Using simplified PDF export due to special characters in text")
+                pdf_data = simple_pdf_generation(st.session_state.current_script)
+                
+            st.download_button(
+                label="Download as PDF",
+                data=pdf_data,
+                file_name="youtube_script.pdf",
+                mime="application/pdf"
+            )
+        except Exception as e:
+            st.error(f"Could not generate PDF: {str(e)}")
 
 # ----------------------------
 # 10. Modify a Specific Paragraph
