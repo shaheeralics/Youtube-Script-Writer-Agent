@@ -6,10 +6,12 @@
 
 @layer base {
   * {
-    @apply border-border;
+    border-color: theme('colors.gray.200');
   }
   body {
-    @apply bg-dark-50 text-dark-900 font-mono;
+    background-color: theme('colors.zinc.900');
+    color: theme('colors.zinc.100');
+    font-family: 'JetBrains Mono', 'Monaco', 'Consolas', monospace;
     background-image: 
       radial-gradient(circle at 20% 50%, rgba(14, 165, 233, 0.15) 0%, transparent 50%),
       radial-gradient(circle at 80% 20%, rgba(168, 85, 247, 0.15) 0%, transparent 50%),
@@ -19,28 +21,52 @@
 
 @layer components {
   .glass-card {
-    @apply bg-dark-100/50 backdrop-blur-xl border border-dark-200/30 rounded-2xl;
+    background-color: rgba(39, 39, 42, 0.5);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(63, 63, 70, 0.3);
+    border-radius: 1rem;
   }
   
   .gradient-text {
-    @apply bg-gradient-to-r from-primary-400 via-purple-400 to-pink-400 bg-clip-text text-transparent;
+    background: linear-gradient(to right, #38bdf8, #a855f7, #ec4899);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
   }
   
   .cyber-button {
-    @apply relative overflow-hidden bg-gradient-to-r from-primary-500 to-primary-600 hover:from-primary-600 hover:to-primary-700 transition-all duration-300 transform hover:scale-105 active:scale-95;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(to right, #0ea5e9, #0284c7);
+    transition: all 0.3s ease;
+    transform: scale(1);
+  }
+  
+  .cyber-button:hover {
+    background: linear-gradient(to right, #0284c7, #075985);
+    transform: scale(1.05);
+  }
+  
+  .cyber-button:active {
+    transform: scale(0.95);
   }
   
   .cyber-button::before {
     content: '';
-    @apply absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 -translate-x-full transition-transform duration-700;
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transform: skewX(-12deg) translateX(-100%);
+    transition: transform 0.7s ease;
   }
   
   .cyber-button:hover::before {
-    @apply translate-x-full;
+    transform: skewX(-12deg) translateX(100%);
   }
   
   .neon-border {
-    @apply border border-primary-500/50 shadow-lg shadow-primary-500/25;
+    border: 1px solid rgba(14, 165, 233, 0.5);
+    box-shadow: 0 10px 15px -3px rgba(14, 165, 233, 0.25);
   }
   
   .scrollbar-hide {
