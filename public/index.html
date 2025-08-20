@@ -10,9 +10,59 @@
       content="AI-powered YouTube Script Writer with futuristic design"
     />
     <title>YouTube Script Writer AI</title>
+    <style>
+      /* Fallback styles in case Tailwind doesn't load */
+      body {
+        margin: 0;
+        font-family: 'Monaco', 'Consolas', monospace;
+        background-color: #18181b;
+        color: #fafafa;
+      }
+      #root {
+        min-height: 100vh;
+      }
+      .loading-fallback {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        flex-direction: column;
+        text-align: center;
+      }
+      .loading-fallback h1 {
+        font-size: 2rem;
+        margin-bottom: 1rem;
+        background: linear-gradient(45deg, #0ea5e9, #a855f7);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+      }
+    </style>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
+    <div id="root">
+      <!-- Fallback content while React loads -->
+      <div class="loading-fallback">
+        <h1>YouTube Script Writer AI</h1>
+        <p>Loading React application...</p>
+        <p><small>If this persists, check browser console for errors</small></p>
+      </div>
+    </div>
+    
+    <script>
+      // Debug script to help identify issues
+      console.log('Index.html loaded');
+      console.log('PUBLIC_URL:', '%PUBLIC_URL%');
+      
+      // Check if React loads
+      setTimeout(() => {
+        const root = document.getElementById('root');
+        if (root && root.innerHTML.includes('loading-fallback')) {
+          console.error('React app did not load properly');
+          console.log('Root element content:', root.innerHTML);
+        }
+      }, 5000);
+    </script>
   </body>
 </html>
