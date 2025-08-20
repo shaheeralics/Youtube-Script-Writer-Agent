@@ -10,19 +10,19 @@ from xhtml2pdf import pisa
 # ----------------------------
 # 1. Load Reference Scripts from DOCX
 # ----------------------------
-def load_sample_scripts(file_path="sample_scripts.docx"):
+def load_sample_scripts(file_path="streamlit/sample_scripts.docx"):
     if not os.path.exists(file_path):
         return []
     document = Document(file_path)
     scripts = [p.text.strip() for p in document.paragraphs if p.text.strip()]
     return scripts
 
-sample_scripts = load_sample_scripts()  # Reads from sample_scripts.docx
+sample_scripts = load_sample_scripts()  # Reads from streamlit/sample_scripts.docx
 
 # ----------------------------
 # 2. Load Prompt from TXT
 # ----------------------------
-def load_prompt(file_path="prompt.txt"):
+def load_prompt(file_path="streamlit/prompt.txt"):
     if not os.path.exists(file_path):
         return ""
     with open(file_path, "r", encoding="utf-8") as file:
