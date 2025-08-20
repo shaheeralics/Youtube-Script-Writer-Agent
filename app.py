@@ -1,11 +1,27 @@
 import os
 import streamlit as st
-from docx import Document
-import google.generativeai as genai
+
+try:
+    from docx import Document
+except ImportError:
+    st.error("Required package 'python-docx' is not installed. Please install it using: pip install python-docx")
+    st.stop()
+
+try:
+    import google.generativeai as genai
+except ImportError:
+    st.error("Required package 'google-generativeai' is not installed. Please install it using: pip install google-generativeai")
+    st.stop()
+
 import io
 import markdown
 import base64
-from xhtml2pdf import pisa
+
+try:
+    from xhtml2pdf import pisa
+except ImportError:
+    st.warning("PDF export functionality is not available. Install xhtml2pdf for PDF support.")
+    pisa = None
 
 # ----------------------------
 # 1. Load Reference Scripts from DOCX

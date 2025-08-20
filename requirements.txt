@@ -1,0 +1,7 @@
+Flask
+python-docx
+google-generativeai
+streamlit
+markdown
+beautifulsoup4
+xhtml2pdf
