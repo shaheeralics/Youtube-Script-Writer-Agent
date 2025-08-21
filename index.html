@@ -373,6 +373,16 @@
                             <option value="entertainment">Entertainment</option>
                             <option value="tutorial">Tutorial</option>
                             <option value="review">Review</option>
+                            <option value="techfela_short">TechFela Short (Roman Urdu)</option>
+                            <option value="techfela_long">TechFela Long (Roman Urdu)</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="label" for="language">Language</label>
+                        <select id="language" class="input">
+                            <option value="english">English</option>
+                            <option value="roman_urdu">Roman Urdu (TechFela Style)</option>
                         </select>
                     </div>
 
@@ -473,12 +483,14 @@
             const styleInput = document.getElementById('style');
             const durationInput = document.getElementById('duration');
             const audienceInput = document.getElementById('audience');
+            const languageInput = document.getElementById('language');
             const apiUrlInput = document.getElementById('api-url');
             
             const topic = topicInput.value.trim();
             const style = styleInput.value;
             const duration = durationInput.value;
             const audience = audienceInput.value;
+            const language = languageInput.value;
             const apiUrl = apiUrlInput.value.trim() || DEFAULT_API_URL;
             
             if (!topic) {
@@ -511,7 +523,8 @@
                     topic: topic,
                     style: style,
                     duration: duration,
-                    target_audience: audience
+                    target_audience: audience,
+                    language: language
                 };
                 
                 console.log('Sending request to:', `${apiUrl}/generate-script`);
