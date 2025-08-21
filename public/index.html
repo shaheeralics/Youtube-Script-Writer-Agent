@@ -51,18 +51,41 @@
     </div>
     
     <script>
-      // Debug script to help identify issues
-      console.log('Index.html loaded');
+      // Enhanced debug script
+      console.log('=== YouTube Script Writer Debug ===');
+      console.log('Index.html loaded at:', new Date().toISOString());
       console.log('PUBLIC_URL:', '%PUBLIC_URL%');
+      console.log('User Agent:', navigator.userAgent);
       
       // Check if React loads
-      setTimeout(() => {
+      let checkCount = 0;
+      const checkInterval = setInterval(() => {
+        checkCount++;
         const root = document.getElementById('root');
-        if (root && root.innerHTML.includes('loading-fallback')) {
-          console.error('React app did not load properly');
-          console.log('Root element content:', root.innerHTML);
+        
+        if (root) {
+          console.log(`Check ${checkCount}: Root content:`, root.innerHTML.substring(0, 100));
+          
+          if (root.innerHTML.includes('React App Successfully Loaded')) {
+            console.log('✅ React app loaded successfully!');
+            clearInterval(checkInterval);
+          } else if (checkCount >= 10) {
+            console.log('❌ React app failed to load after 10 seconds');
+            console.log('Final root content:', root.innerHTML);
+            clearInterval(checkInterval);
+          }
         }
-      }, 5000);
+      }, 1000);
+      
+      // Log any errors
+      window.addEventListener('error', (e) => {
+        console.error('JavaScript Error:', e.error);
+        console.error('Error source:', e.filename, 'Line:', e.lineno);
+      });
+      
+      window.addEventListener('unhandledrejection', (e) => {
+        console.error('Unhandled Promise Rejection:', e.reason);
+      });
     </script>
   </body>
 </html>
