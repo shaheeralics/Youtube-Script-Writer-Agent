@@ -1200,22 +1200,11 @@
             `;
             downloadBtn.disabled = true;
             
-            // Get the raw script text and convert it properly
-            const scriptOutput = document.getElementById('script-output');
-            const rawScript = scriptOutput.value;
-            
-            if (!rawScript) {
-                showError('No script content found!');
-                downloadBtn.innerHTML = originalText;
-                downloadBtn.disabled = false;
-                return;
-            }
-            
-            // Create a simple, clean PDF document
-            const pdfContent = document.createElement('div');
-            pdfContent.style.cssText = `
+            // Create PDF element that captures the exact preview content
+            const pdfElement = document.createElement('div');
+            pdfElement.style.cssText = `
                 padding: 20px 30px;
-                font-family: Arial, sans-serif;
+                font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
                 background-color: white;
                 color: black;
                 line-height: 1.6;
@@ -1238,141 +1227,158 @@
                 border-bottom: 2px solid #1e40af;
                 padding-bottom: 15px;
             `;
-            pdfContent.appendChild(titleElement);
+            pdfElement.appendChild(titleElement);
             
-            // Process the raw script text line by line
-            const lines = rawScript.split('\n');
-            let currentContent = '';
+            // Clone and style the script preview content exactly as shown
+            const contentClone = scriptPreview.cloneNode(true);
             
-            lines.forEach(line => {
-                const trimmedLine = line.trim();
+            // Remove any existing styles that interfere with PDF
+            contentClone.style.cssText = `
+                background: none !important;
+                border: none !important;
+                max-height: none !important;
+                overflow: visible !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                position: relative !important;
+                top: 0 !important;
+            `;
+            
+            // Style all elements for PDF while preserving the preview appearance
+            const elements = contentClone.querySelectorAll('*');
+            elements.forEach(el => {
+                // Reset positioning
+                el.style.position = 'static';
+                el.style.top = 'auto';
+                el.style.left = 'auto';
+                el.style.background = 'none';
+                el.style.border = 'none';
+                el.style.boxShadow = 'none';
                 
-                // Skip empty lines
-                if (!trimmedLine) {
-                    if (currentContent) {
-                        currentContent += '<br><br>';
-                    }
-                    return;
-                }
-                
-                // Handle headers
-                if (trimmedLine.startsWith('# ')) {
-                    if (currentContent) {
-                        const p = document.createElement('div');
-                        p.innerHTML = currentContent;
-                        p.style.cssText = 'margin-bottom: 20px; text-align: justify;';
-                        pdfContent.appendChild(p);
-                        currentContent = '';
-                    }
-                    const h1 = document.createElement('h1');
-                    h1.textContent = trimmedLine.substring(2);
-                    h1.style.cssText = `
-                        color: #1e40af;
-                        font-size: 20px;
-                        font-weight: bold;
-                        margin: 25px 0 15px 0;
-                        border-bottom: 2px solid #1e40af;
-                        padding-bottom: 8px;
+                // Apply PDF-specific styles based on element type
+                if (el.tagName === 'H1') {
+                    el.style.cssText = `
+                        color: #1e40af !important;
+                        font-size: 20px !important;
+                        font-weight: bold !important;
+                        margin: 25px 0 15px 0 !important;
+                        border-bottom: 2px solid #1e40af !important;
+                        padding-bottom: 8px !important;
+                        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
                     `;
-                    pdfContent.appendChild(h1);
-                    return;
                 }
-                
-                if (trimmedLine.startsWith('## ')) {
-                    if (currentContent) {
-                        const p = document.createElement('div');
-                        p.innerHTML = currentContent;
-                        p.style.cssText = 'margin-bottom: 20px; text-align: justify;';
-                        pdfContent.appendChild(p);
-                        currentContent = '';
-                    }
-                    const h2 = document.createElement('h2');
-                    h2.textContent = trimmedLine.substring(3);
-                    h2.style.cssText = `
-                        color: #7c3aed;
-                        font-size: 18px;
-                        font-weight: bold;
-                        margin: 20px 0 12px 0;
+                if (el.tagName === 'H2') {
+                    el.style.cssText = `
+                        color: #7c3aed !important;
+                        font-size: 18px !important;
+                        font-weight: bold !important;
+                        margin: 20px 0 12px 0 !important;
+                        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
                     `;
-                    pdfContent.appendChild(h2);
-                    return;
                 }
-                
-                if (trimmedLine.startsWith('### ')) {
-                    if (currentContent) {
-                        const p = document.createElement('div');
-                        p.innerHTML = currentContent;
-                        p.style.cssText = 'margin-bottom: 20px; text-align: justify;';
-                        pdfContent.appendChild(p);
-                        currentContent = '';
-                    }
-                    const h3 = document.createElement('h3');
-                    h3.textContent = trimmedLine.substring(4);
-                    h3.style.cssText = `
-                        color: #be185d;
-                        font-size: 16px;
-                        font-weight: bold;
-                        margin: 15px 0 10px 0;
+                if (el.tagName === 'H3') {
+                    el.style.cssText = `
+                        color: #be185d !important;
+                        font-size: 16px !important;
+                        font-weight: bold !important;
+                        margin: 15px 0 10px 0 !important;
+                        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
                     `;
-                    pdfContent.appendChild(h3);
-                    return;
                 }
-                
-                // Handle timestamps
-                if (trimmedLine.match(/^\[[\d:]+\]/)) {
-                    if (currentContent) {
-                        const p = document.createElement('div');
-                        p.innerHTML = currentContent;
-                        p.style.cssText = 'margin-bottom: 15px; text-align: justify;';
-                        pdfContent.appendChild(p);
-                        currentContent = '';
-                    }
-                    const timestamp = document.createElement('div');
-                    timestamp.textContent = trimmedLine;
-                    timestamp.style.cssText = `
-                        color: #d97706;
-                        background-color: #fef3c7;
-                        padding: 8px 15px;
-                        border-radius: 6px;
-                        font-weight: bold;
-                        margin: 15px 0 10px 0;
-                        display: inline-block;
+                if (el.tagName === 'P') {
+                    el.style.cssText = `
+                        color: black !important;
+                        margin: 12px 0 !important;
+                        line-height: 1.8 !important;
+                        text-align: justify !important;
+                        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
                     `;
-                    pdfContent.appendChild(timestamp);
-                    return;
+                }
+                if (el.tagName === 'STRONG' || el.tagName === 'B') {
+                    el.style.cssText = `
+                        color: #d97706 !important;
+                        font-weight: bold !important;
+                        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
+                    `;
+                }
+                if (el.tagName === 'EM' || el.tagName === 'I') {
+                    el.style.cssText = `
+                        color: #059669 !important;
+                        font-style: italic !important;
+                        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
+                    `;
                 }
                 
-                // Handle regular text with markdown formatting
-                let processedLine = trimmedLine;
-                
-                // Bold text
-                processedLine = processedLine.replace(/\*\*(.*?)\*\*/g, '<strong style="color: #d97706; font-weight: bold;">$1</strong>');
-                
-                // Italic text
-                processedLine = processedLine.replace(/\*(.*?)\*/g, '<em style="color: #059669; font-style: italic;">$1</em>');
-                
-                // Add to current content
-                if (currentContent) {
-                    currentContent += '<br>';
+                // Handle timestamp elements (highlighted in yellow/gold)
+                if (el.classList.contains('timestamp') || 
+                    (el.style.backgroundColor && el.style.backgroundColor.includes('251, 191, 36')) ||
+                    (el.style.color && el.style.color.includes('251, 191, 36')) ||
+                    el.textContent.match(/^\(\d+-\d+\s+seconds?\)/)) {
+                    el.style.cssText = `
+                        color: #d97706 !important;
+                        background-color: #fef3c7 !important;
+                        padding: 6px 12px !important;
+                        border-radius: 6px !important;
+                        font-weight: bold !important;
+                        display: inline-block !important;
+                        margin: 8px 0 !important;
+                        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
+                    `;
                 }
-                currentContent += processedLine;
+                
+                if (el.tagName === 'UL' || el.tagName === 'OL') {
+                    el.style.cssText = `
+                        margin: 15px 0 15px 25px !important;
+                        padding: 0 !important;
+                        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
+                    `;
+                }
+                if (el.tagName === 'LI') {
+                    el.style.cssText = `
+                        color: black !important;
+                        margin: 8px 0 !important;
+                        line-height: 1.6 !important;
+                        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
+                    `;
+                }
+                if (el.tagName === 'BLOCKQUOTE') {
+                    el.style.cssText = `
+                        border-left: 4px solid #0ea5e9 !important;
+                        padding-left: 20px !important;
+                        margin: 20px 0 !important;
+                        color: #374151 !important;
+                        font-style: italic !important;
+                        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif !important;
+                    `;
+                }
+                if (el.tagName === 'CODE') {
+                    el.style.cssText = `
+                        background-color: #f3f4f6 !important;
+                        color: #7c3aed !important;
+                        padding: 3px 8px !important;
+                        border-radius: 4px !important;
+                        font-family: "Courier New", monospace !important;
+                    `;
+                }
+                
+                // Ensure all text elements have proper font
+                if (!el.style.fontFamily) {
+                    el.style.fontFamily = '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif';
+                }
+                if (!el.style.color && el.tagName !== 'STRONG' && el.tagName !== 'EM' && !el.classList.contains('timestamp')) {
+                    el.style.color = 'black';
+                }
             });
             
-            // Add any remaining content
-            if (currentContent) {
-                const p = document.createElement('div');
-                p.innerHTML = currentContent;
-                p.style.cssText = 'margin-bottom: 20px; text-align: justify;';
-                pdfContent.appendChild(p);
-            }
+            pdfElement.appendChild(contentClone);
             
-            // Simplified PDF options for better compatibility
+            // PDF options optimized for top positioning
             const options = {
                 margin: [0.3, 0.5, 0.5, 0.5],
                 filename: `youtube-script-${topic.replace(/\s+/g, '-').toLowerCase()}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { 
-                    scale: 1,
+                    scale: 2,
                     useCORS: true,
                     logging: false,
                     backgroundColor: '#ffffff',
@@ -1390,7 +1396,7 @@
             // Generate PDF
             html2pdf()
                 .set(options)
-                .from(pdfContent)
+                .from(pdfElement)
                 .save()
                 .then(() => {
                     console.log('PDF generated successfully');
