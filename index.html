@@ -1214,14 +1214,16 @@
             // Create a simple, clean PDF document
             const pdfContent = document.createElement('div');
             pdfContent.style.cssText = `
-                padding: 40px;
+                padding: 20px 30px;
                 font-family: Arial, sans-serif;
                 background-color: white;
                 color: black;
                 line-height: 1.6;
-                max-width: 800px;
-                margin: 0 auto;
+                max-width: 100%;
+                margin: 0;
                 font-size: 14px;
+                position: relative;
+                top: 0;
             `;
             
             // Add title
@@ -1232,7 +1234,7 @@
                 font-size: 24px;
                 font-weight: bold;
                 text-align: center;
-                margin-bottom: 30px;
+                margin: 0 0 30px 0;
                 border-bottom: 2px solid #1e40af;
                 padding-bottom: 15px;
             `;
@@ -1366,14 +1368,17 @@
             
             // Simplified PDF options for better compatibility
             const options = {
-                margin: [0.5, 0.5, 0.5, 0.5],
+                margin: [0.3, 0.5, 0.5, 0.5],
                 filename: `youtube-script-${topic.replace(/\s+/g, '-').toLowerCase()}.pdf`,
                 image: { type: 'jpeg', quality: 0.98 },
                 html2canvas: { 
                     scale: 1,
                     useCORS: true,
                     logging: false,
-                    backgroundColor: '#ffffff'
+                    backgroundColor: '#ffffff',
+                    y: 0,
+                    scrollX: 0,
+                    scrollY: 0
                 },
                 jsPDF: { 
                     unit: 'in', 
