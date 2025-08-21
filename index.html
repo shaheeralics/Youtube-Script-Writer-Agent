@@ -365,6 +365,49 @@
                             placeholder="Enter your video topic (e.g., 'Machine Learning for Beginners')"
                         >
                     </div>
+
+                    <div class="input-group">
+                        <label class="label" for="style">Content Style</label>
+                        <select id="style" class="input">
+                            <option value="educational">Educational</option>
+                            <option value="entertainment">Entertainment</option>
+                            <option value="tutorial">Tutorial</option>
+                            <option value="review">Review</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="label" for="duration">Video Duration</label>
+                        <select id="duration" class="input">
+                            <option value="short">Short (2-5 minutes)</option>
+                            <option value="medium" selected>Medium (5-10 minutes)</option>
+                            <option value="long">Long (10+ minutes)</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="label" for="audience">Target Audience</label>
+                        <select id="audience" class="input">
+                            <option value="general" selected>General Audience</option>
+                            <option value="beginners">Beginners</option>
+                            <option value="advanced">Advanced</option>
+                            <option value="kids">Kids</option>
+                        </select>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="label" for="api-url">Backend API URL</label>
+                        <input 
+                            type="url" 
+                            id="api-url" 
+                            class="input"
+                            placeholder="https://your-backend-api.com"
+                            value="http://localhost:8000"
+                        >
+                        <small style="color: #71717a; font-size: 0.85rem; margin-top: 0.5rem; display: block;">
+                            Enter your deployed backend URL or use localhost for testing
+                        </small>
+                    </div>
                     
                     <button class="btn" onclick="generateScript()">
                         <span id="btn-text">🚀 Generate Script</span>
@@ -382,10 +425,23 @@
                             <button class="btn-secondary" onclick="downloadScript()">💾 Download</button>
                         </div>
                     </h2>
+
+                    <div id="script-info" class="script-info" style="display: none; margin-bottom: 1rem; padding: 1rem; background: rgba(14, 165, 233, 0.1); border-radius: 0.5rem; border: 1px solid rgba(14, 165, 233, 0.3);">
+                        <div style="display: flex; gap: 2rem; font-size: 0.9rem; color: #a1a1aa;">
+                            <span><strong>Word Count:</strong> <span id="word-count">-</span></span>
+                            <span><strong>Duration:</strong> <span id="duration-estimate">-</span></span>
+                            <span><strong>Sections:</strong> <span id="section-count">-</span></span>
+                        </div>
+                    </div>
                     
                     <div id="loading" class="loading" style="display: none;">
                         <div class="spinner"></div>
                         <p style="color: #a1a1aa;">AI is crafting your perfect script...</p>
+                        <p id="loading-status" style="color: #71717a; font-size: 0.9rem; margin-top: 0.5rem;">Connecting to backend...</p>
+                    </div>
+
+                    <div id="error-message" class="error-message" style="display: none; padding: 1rem; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.3); border-radius: 0.5rem; margin-bottom: 1rem;">
+                        <p style="color: #fca5a5; margin: 0;"></p>
                     </div>
                     
                     <textarea 
@@ -409,18 +465,33 @@
     </div>
 
     <script>
-        function generateScript() {
+        // Configuration
+        const DEFAULT_API_URL = 'http://localhost:8000';
+        
+        async function generateScript() {
             const topicInput = document.getElementById('topic');
+            const styleInput = document.getElementById('style');
+            const durationInput = document.getElementById('duration');
+            const audienceInput = document.getElementById('audience');
+            const apiUrlInput = document.getElementById('api-url');
+            
             const topic = topicInput.value.trim();
+            const style = styleInput.value;
+            const duration = durationInput.value;
+            const audience = audienceInput.value;
+            const apiUrl = apiUrlInput.value.trim() || DEFAULT_API_URL;
             
             if (!topic) {
-                alert('Please enter a video topic!');
+                showError('Please enter a video topic!');
                 return;
             }
             
             const outputSection = document.getElementById('output-section');
             const loading = document.getElementById('loading');
+            const loadingStatus = document.getElementById('loading-status');
             const scriptOutput = document.getElementById('script-output');
+            const scriptInfo = document.getElementById('script-info');
+            const errorMessage = document.getElementById('error-message');
             const btnText = document.getElementById('btn-text');
             const btn = document.querySelector('.btn');
             
@@ -428,79 +499,149 @@
             outputSection.classList.add('show');
             loading.style.display = 'block';
             scriptOutput.style.display = 'none';
+            scriptInfo.style.display = 'none';
+            errorMessage.style.display = 'none';
             btnText.textContent = '⏳ Generating...';
             btn.disabled = true;
             
-            // Simulate script generation
-            setTimeout(() => {
-                const script = `# ${topic}
-
-## Introduction
-Welcome to this exciting journey into ${topic}! Today, we're going to explore everything you need to know about this fascinating subject. Whether you're a complete beginner or looking to expand your knowledge, this video has something valuable for you.
-
-## Hook
-Did you know that ${topic} could completely change the way you think about [relevant field]? By the end of this video, you'll have a clear understanding of the key concepts and practical applications.
-
-## Main Content
-
-### What is ${topic}?
-${topic} is [detailed explanation]. This concept has been revolutionizing [relevant industry/field] and here's why it matters to you.
-
-### Key Benefits:
-• **Benefit 1**: [Explanation of first major benefit]
-• **Benefit 2**: [Explanation of second major benefit]  
-• **Benefit 3**: [Explanation of third major benefit]
-
-### Getting Started
-If you're just beginning with ${topic}, here are the essential steps:
-
-1. **Step 1**: [First actionable step]
-2. **Step 2**: [Second actionable step]
-3. **Step 3**: [Third actionable step]
-
-### Common Mistakes to Avoid
-• Mistake 1: [Common pitfall and how to avoid it]
-• Mistake 2: [Another common issue]
-• Mistake 3: [Third mistake to watch out for]
-
-### Pro Tips
-Here are some advanced strategies that most people don't know about:
-- [Pro tip 1]
-- [Pro tip 2]
-- [Pro tip 3]
-
-## Real-World Examples
-Let me share some concrete examples of ${topic} in action:
-[Specific examples relevant to the topic]
-
-## Conclusion
-To wrap up, ${topic} is incredibly powerful when you understand how to apply it correctly. The key takeaways from today's video are:
-1. [Key takeaway 1]
-2. [Key takeaway 2]
-3. [Key takeaway 3]
-
-## Call to Action
-If you found this video helpful, please give it a thumbs up and subscribe for more content about ${topic} and related topics. 
-
-What questions do you have about ${topic}? Drop them in the comments below, and I'll make sure to answer them!
-
-Don't forget to hit the notification bell so you never miss our latest videos. Until next time, keep learning and growing!
-
----
-*Generated by YouTube Script Writer AI*`;
-
+            try {
+                loadingStatus.textContent = 'Connecting to backend...';
+                
+                const requestBody = {
+                    topic: topic,
+                    style: style,
+                    duration: duration,
+                    target_audience: audience
+                };
+                
+                console.log('Sending request to:', `${apiUrl}/generate-script`);
+                console.log('Request body:', requestBody);
+                
+                loadingStatus.textContent = 'Generating script with AI...';
+                
+                const response = await fetch(`${apiUrl}/generate-script`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify(requestBody)
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({ detail: 'Network error' }));
+                    throw new Error(errorData.detail || `HTTP ${response.status}: ${response.statusText}`);
+                }
+                
+                loadingStatus.textContent = 'Processing response...';
+                
+                const data = await response.json();
+                console.log('Response received:', data);
+                
                 // Show the generated script
                 loading.style.display = 'none';
                 scriptOutput.style.display = 'block';
-                scriptOutput.value = script;
+                scriptInfo.style.display = 'block';
+                scriptOutput.value = data.script;
+                
+                // Update script information
+                document.getElementById('word-count').textContent = data.word_count;
+                document.getElementById('duration-estimate').textContent = data.estimated_duration;
+                document.getElementById('section-count').textContent = data.sections ? data.sections.length : 0;
+                
                 btnText.textContent = '🚀 Generate Script';
                 btn.disabled = false;
                 
                 // Auto-resize textarea
                 scriptOutput.style.height = 'auto';
-                scriptOutput.style.height = scriptOutput.scrollHeight + 'px';
+                scriptOutput.style.height = Math.min(scriptOutput.scrollHeight, 600) + 'px';
                 
-            }, 3000); // 3 second simulation
+                // Success feedback
+                showSuccess('Script generated successfully!');
+                
+            } catch (error) {
+                console.error('Error generating script:', error);
+                
+                loading.style.display = 'none';
+                scriptOutput.style.display = 'block';
+                btnText.textContent = '🚀 Generate Script';
+                btn.disabled = false;
+                
+                // Show error
+                showError(`Failed to generate script: ${error.message}`);
+                
+                // Fallback: Show a basic template
+                showFallbackScript(topic, style, duration, audience);
+            }
+        }
+        
+        function showError(message) {
+            const errorMessage = document.getElementById('error-message');
+            errorMessage.querySelector('p').textContent = message;
+            errorMessage.style.display = 'block';
+            
+            setTimeout(() => {
+                errorMessage.style.display = 'none';
+            }, 10000);
+        }
+        
+        function showSuccess(message) {
+            // You can implement a success notification here
+            console.log(message);
+        }
+        
+        function showFallbackScript(topic, style, duration, audience) {
+            const scriptOutput = document.getElementById('script-output');
+            const scriptInfo = document.getElementById('script-info');
+            
+            const fallbackScript = `# ${topic}
+
+## Hook (0:00-0:15)
+Hey everyone! Today we're diving into ${topic}, and I promise you'll learn something incredible by the end of this video!
+
+## Introduction (0:15-0:45)  
+Welcome back to the channel! I'm excited to share everything about ${topic} with you today.
+
+## Main Content
+
+### What is ${topic}?
+${topic} is a fascinating subject that has been gaining attention recently. Let me break down the key concepts for you.
+
+### Why Should You Care?
+Here are the main reasons why ${topic} is important:
+• It can impact your daily life
+• It's relevant to current trends  
+• It has practical applications
+
+### Getting Started
+If you want to explore ${topic}, here's how to begin:
+1. Start with the basics
+2. Practice regularly
+3. Stay updated with latest developments
+
+## Conclusion
+To wrap up, ${topic} is definitely worth understanding. The key takeaways are:
+- Understanding leads to better decisions
+- Practice makes perfect
+- Stay curious and keep learning
+
+## Call to Action
+If you found this helpful, please like and subscribe! What's your experience with ${topic}? Let me know in the comments below!
+
+---
+*Note: This is a fallback template. For AI-generated content, please ensure your backend is running.*`;
+
+            scriptOutput.value = fallbackScript;
+            scriptInfo.style.display = 'block';
+            
+            // Update basic info
+            const wordCount = fallbackScript.split(' ').length;
+            document.getElementById('word-count').textContent = wordCount;
+            document.getElementById('duration-estimate').textContent = '5-8 minutes';
+            document.getElementById('section-count').textContent = '6';
+            
+            scriptOutput.style.height = 'auto';
+            scriptOutput.style.height = Math.min(scriptOutput.scrollHeight, 600) + 'px';
         }
         
         function copyScript() {
@@ -522,7 +663,7 @@ Don't forget to hit the notification bell so you never miss our latest videos. U
             const script = document.getElementById('script-output').value;
             
             if (!script) {
-                alert('No script to download!');
+                showError('No script to download!');
                 return;
             }
             
@@ -537,6 +678,22 @@ Don't forget to hit the notification bell so you never miss our latest videos. U
             URL.revokeObjectURL(url);
         }
         
+        // Test backend connection on page load
+        async function testBackendConnection() {
+            const apiUrl = document.getElementById('api-url').value.trim() || DEFAULT_API_URL;
+            
+            try {
+                const response = await fetch(`${apiUrl}/health`);
+                if (response.ok) {
+                    console.log('✅ Backend connection successful');
+                } else {
+                    console.log('⚠️ Backend responded with error status');
+                }
+            } catch (error) {
+                console.log('❌ Backend connection failed:', error.message);
+            }
+        }
+        
         // Allow Enter key to generate script
         document.getElementById('topic').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
@@ -544,7 +701,14 @@ Don't forget to hit the notification bell so you never miss our latest videos. U
             }
         });
         
-        console.log('YouTube Script Writer AI loaded successfully! 🎉');
+        // Test connection when API URL changes
+        document.getElementById('api-url').addEventListener('blur', testBackendConnection);
+        
+        // Test connection on page load
+        window.addEventListener('load', () => {
+            setTimeout(testBackendConnection, 1000);
+            console.log('YouTube Script Writer AI loaded successfully! 🎉');
+        });
     </script>
 </body>
 </html>
