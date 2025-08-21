@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <title>YouTube Script Writer AI</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -178,7 +179,7 @@
             .logo {
                 width: 60px;
                 height: 60px;
-                margin: 0 auto 1.5rem;
+                margin: 0 auto 2rem; /* Increased spacing for mobile */
             }
             
             .logo::before {
@@ -192,7 +193,7 @@
             .logo {
                 width: 50px;
                 height: 50px;
-                margin: 0 auto 1rem;
+                margin: 0 auto 2.5rem; /* Even more spacing for small mobile */
             }
             
             .logo::before {
@@ -581,6 +582,57 @@
             }
         }
 
+        .btn-download {
+            background: linear-gradient(45deg, #10b981, #059669);
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.5rem;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            min-height: 40px;
+        }
+
+        .btn-download:hover {
+            background: linear-gradient(45deg, #059669, #047857);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-download:active {
+            transform: translateY(0);
+        }
+
+        /* Mobile download button optimization */
+        @media (max-width: 768px) {
+            .btn-download {
+                padding: 0.625rem 1rem;
+                font-size: 0.85rem;
+                border-radius: 0.375rem;
+            }
+            
+            .btn-download:hover {
+                transform: translateY(-1px);
+            }
+        }
+
+        @media (max-width: 480px) {
+            .btn-download {
+                padding: 0.5rem 0.75rem;
+                font-size: 0.8rem;
+                min-height: 44px;
+            }
+            
+            .btn-download:hover {
+                transform: none;
+                box-shadow: none;
+            }
+        }
+
         .result-header {
             margin-bottom: 1rem;
         }
@@ -590,10 +642,18 @@
             .result-header h2 {
                 font-size: 1.2rem !important;
                 margin-bottom: 0.75rem !important;
+                flex-direction: column !important;
+                align-items: flex-start !important;
+                gap: 1rem;
             }
             
             .result-header h2 span {
                 font-size: 1.2rem !important;
+            }
+            
+            .result-header h2 span svg {
+                width: 20px !important;
+                height: 20px !important;
             }
         }
 
@@ -601,13 +661,17 @@
             .result-header h2 {
                 font-size: 1.1rem !important;
                 margin-bottom: 0.5rem !important;
-                flex-direction: column;
-                align-items: flex-start !important;
-                text-align: left;
+                gap: 0.75rem;
             }
             
             .result-header h2 span {
                 font-size: 1rem !important;
+                margin-right: 0.5rem !important;
+            }
+            
+            .result-header h2 span svg {
+                width: 18px !important;
+                height: 18px !important;
                 margin-right: 0.5rem !important;
             }
         }
@@ -759,7 +823,9 @@
             <main>
                 <div class="glass-card">
                     <h2 style="display: flex; align-items: center; margin-bottom: 1.5rem; color: white;">
-                        <span style="margin-right: 0.75rem; font-size: 1.5rem;">✨</span>
+                        <svg style="margin-right: 0.75rem; width: 24px; height: 24px; fill: #0ea5e9;" viewBox="0 0 24 24">
+                            <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20M8,12V14H16V12H8M8,16V18H13V16H8"/>
+                        </svg>
                         Create Your Script
                     </h2>
                     
@@ -782,21 +848,29 @@
                     </div>
                     
                     <button class="btn" onclick="generateScript()">
-                        <span id="btn-text">🚀 Generate Script</span>
+                        <svg style="width: 20px; height: 20px; margin-right: 0.5rem; fill: currentColor;" viewBox="0 0 24 24">
+                            <path d="M2,21L23,12L2,3V10L17,12L2,14V21Z"/>
+                        </svg>
+                        <span id="btn-text">Generate Script</span>
                     </button>
                 </div>
 
                 <div class="glass-card output-section" id="output-section">
                     <div class="result-header">
-                        <h2 style="display: flex; align-items: center; margin-bottom: 1rem; color: white;">
-                            <span style="margin-right: 0.75rem; font-size: 1.5rem;">📄</span>
-                            Generated Script
+                        <h2 style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 1rem; color: white;">
+                            <span style="display: flex; align-items: center;">
+                                <svg style="margin-right: 0.75rem; width: 24px; height: 24px; fill: #0ea5e9;" viewBox="0 0 24 24">
+                                    <path d="M14,2H6A2,2 0 0,0 4,4V20A2,2 0 0,0 6,22H18A2,2 0 0,0 20,20V8L14,2M18,20H6V4H13V9H18V20Z"/>
+                                </svg>
+                                Generated Script
+                            </span>
+                            <button class="btn-download" id="download-btn" onclick="downloadScript()" style="display: none;">
+                                <svg style="width: 18px; height: 18px; margin-right: 0.5rem; fill: currentColor;" viewBox="0 0 24 24">
+                                    <path d="M5,20H19V18H5M19,9H15V3H9V9H5L12,16L19,9Z"/>
+                                </svg>
+                                Download PDF
+                            </button>
                         </h2>
-                        <div class="btn-group" style="margin: 0 0 1rem 0;">
-                            <button class="btn-secondary" id="toggle-view" onclick="toggleView()">📝 Raw Text</button>
-                            <button class="btn-secondary" onclick="copyScript()">📋 Copy</button>
-                            <button class="btn-secondary" onclick="downloadScript()">💾 Download</button>
-                        </div>
                     </div>
 
                     <div id="script-info" class="script-info" style="display: none; margin-bottom: 1rem; padding: 1rem; background: rgba(14, 165, 233, 0.1); border-radius: 0.5rem; border: 1px solid rgba(14, 165, 233, 0.3);">
@@ -924,7 +998,7 @@
             scriptPreview.style.display = 'none';
             scriptInfo.style.display = 'none';
             errorMessage.style.display = 'none';
-            btnText.textContent = '⏳ Generating...';
+            btnText.textContent = 'Generating...';
             btn.disabled = true;
             
             try {
@@ -970,12 +1044,15 @@
                 // Render markdown in preview
                 scriptPreview.innerHTML = parseMarkdown(data.script);
                 
+                // Show download button
+                document.getElementById('download-btn').style.display = 'flex';
+                
                 // Update script information
                 document.getElementById('word-count').textContent = data.word_count;
                 document.getElementById('duration-estimate').textContent = data.estimated_duration;
                 document.getElementById('section-count').textContent = data.sections ? data.sections.length : 0;
                 
-                btnText.textContent = '🚀 Generate Script';
+                btnText.textContent = 'Generate Script';
                 btn.disabled = false;
                 
                 // Success feedback
@@ -985,7 +1062,7 @@
                 console.error('Error generating script:', error);
                 
                 loading.style.display = 'none';
-                btnText.textContent = '🚀 Generate Script';
+                btnText.textContent = 'Generate Script';
                 btn.disabled = false;
                 
                 // Show error
@@ -1008,57 +1085,63 @@
             console.log(message);
         }
         
-        function copyScript() {
-            const scriptOutput = document.getElementById('script-output');
-            scriptOutput.select();
-            document.execCommand('copy');
-            
-            const btn = event.target;
-            const originalText = btn.textContent;
-            btn.textContent = '✅ Copied!';
-            
-            setTimeout(() => {
-                btn.textContent = originalText;
-            }, 2000);
-        }
-        
         function downloadScript() {
             const topic = document.getElementById('topic').value.trim();
-            const script = document.getElementById('script-output').value;
+            const scriptPreview = document.getElementById('script-preview');
             
-            if (!script) {
+            if (!scriptPreview.innerHTML) {
                 showError('No script to download!');
                 return;
             }
             
-            const blob = new Blob([script], { type: 'text/plain' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `youtube-script-${topic.replace(/\s+/g, '-').toLowerCase()}.txt`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }
-        
-        // Toggle between markdown preview and raw text
-        function toggleView() {
-            const scriptOutput = document.getElementById('script-output');
-            const scriptPreview = document.getElementById('script-preview');
-            const toggleBtn = document.getElementById('toggle-view');
+            // Create a temporary element for PDF generation
+            const pdfElement = document.createElement('div');
+            pdfElement.style.padding = '20px';
+            pdfElement.style.fontFamily = '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif';
+            pdfElement.style.backgroundColor = 'white';
+            pdfElement.style.color = 'black';
+            pdfElement.style.lineHeight = '1.6';
             
-            if (scriptPreview.style.display === 'none') {
-                // Show markdown preview
-                scriptPreview.style.display = 'block';
-                scriptOutput.style.display = 'none';
-                toggleBtn.innerHTML = '📝 Raw Text';
-            } else {
-                // Show raw text
-                scriptPreview.style.display = 'none';
-                scriptOutput.style.display = 'block';
-                toggleBtn.innerHTML = '🎨 Preview';
-            }
+            // Add title
+            const titleElement = document.createElement('h1');
+            titleElement.textContent = `YouTube Script: ${topic}`;
+            titleElement.style.color = '#1e40af';
+            titleElement.style.borderBottom = '2px solid #1e40af';
+            titleElement.style.paddingBottom = '10px';
+            titleElement.style.marginBottom = '20px';
+            pdfElement.appendChild(titleElement);
+            
+            // Clone and style the script content
+            const contentClone = scriptPreview.cloneNode(true);
+            
+            // Update styles for PDF
+            const elements = contentClone.querySelectorAll('*');
+            elements.forEach(el => {
+                el.style.color = 'black';
+                if (el.tagName === 'H1') el.style.color = '#1e40af';
+                if (el.tagName === 'H2') el.style.color = '#7c3aed';
+                if (el.tagName === 'H3') el.style.color = '#be185d';
+                if (el.tagName === 'STRONG') el.style.color = '#d97706';
+                if (el.tagName === 'EM') el.style.color = '#059669';
+                if (el.classList.contains('timestamp')) {
+                    el.style.color = '#d97706';
+                    el.style.backgroundColor = '#fef3c7';
+                }
+            });
+            
+            pdfElement.appendChild(contentClone);
+            
+            // PDF generation options
+            const options = {
+                margin: 1,
+                filename: `youtube-script-${topic.replace(/\s+/g, '-').toLowerCase()}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2 },
+                jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+            
+            // Generate and download PDF
+            html2pdf().set(options).from(pdfElement).save();
         }
         
         // Test backend connection on page load
