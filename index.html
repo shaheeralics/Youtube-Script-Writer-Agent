@@ -381,10 +381,10 @@
                             id="api-url" 
                             class="input"
                             placeholder="https://your-backend-api.com"
-                            value="http://localhost:8000"
+                            value="https://youtube-script-writer-agent-production.up.railway.app"
                         >
                         <small style="color: #71717a; font-size: 0.85rem; margin-top: 0.5rem; display: block;">
-                            Enter your deployed backend URL or use localhost for testing
+                            Your Railway deployment URL is pre-filled
                         </small>
                     </div>
                     
@@ -445,7 +445,7 @@
 
     <script>
         // Configuration
-        const DEFAULT_API_URL = 'http://localhost:8000';
+        const DEFAULT_API_URL = 'https://youtube-script-writer-agent-production.up.railway.app';
         
         async function generateScript() {
             const topicInput = document.getElementById('topic');
@@ -536,15 +536,11 @@
                 console.error('Error generating script:', error);
                 
                 loading.style.display = 'none';
-                scriptOutput.style.display = 'block';
                 btnText.textContent = '🚀 Generate Script';
                 btn.disabled = false;
                 
                 // Show error
-                showError(`Failed to generate script: ${error.message}`);
-                
-                // Fallback: Show a basic template
-                showFallbackScript(topic, videoType);
+                showError(`Failed to generate script: ${error.message}. Please check your backend URL and try again.`);
             }
         }
         
@@ -561,72 +557,6 @@
         function showSuccess(message) {
             // You can implement a success notification here
             console.log(message);
-        }
-        
-        function showFallbackScript(topic, videoType) {
-            const scriptOutput = document.getElementById('script-output');
-            const scriptInfo = document.getElementById('script-info');
-            
-            let fallbackScript;
-            if (videoType === "short") {
-                fallbackScript = `Video Title: ${topic}: Yeh Kyun Itna Popular Hai? 🤔
-
-(0-15 seconds)
-${topic} ke baare mein suna hai? Agar nahi toh aaj tumhein pata chal jayega kyun sab is ke peeche pagal hain!
-
-(15-30 seconds)
-Dekho bhai, ${topic} actually yeh hai ke... *explains basic concept*. Lekin masla yeh hai ke log ise samajh nahi pa rahe.
-
-(30-45 seconds)
-Pehle zamane mein hum log purane methods use karte the, lekin ab ${topic} se sab kuch itna easy ho gaya hai!
-
-(45-60 seconds)
-Lekin yahan twist yeh hai - ${topic} ke saath ek problem bhi hai. Woh yeh ke sab log ise galat samajh rahe hain.
-
-(60-75 seconds)
-Toh conclusion yeh hai ke ${topic} zaroori hai, lekin samajhdari se use karna parega.
-
-(75-90 seconds)
-Agar video pasand aya toh like kar do, TechFela ko subscribe karna mat bhoolna! Comment mein batao ke tum ${topic} use karte ho ya nahi!`;
-            } else {
-                fallbackScript = `Video Title: ${topic}: Complete Guide - Sab Kuch Jo Tumhein Jaanna Chahiye! 🔥
-
-(0-30 seconds)
-Assalam o Alaikum TechFela family! Aaj hum detail mein baat karenge ${topic} ke baare mein. Agar tum tech ke fan ho toh yeh video tumhare liye perfect hai!
-
-(30-90 seconds)
-Pehle main batata hun ke ${topic} hai kya. Basically yeh ek technology/concept hai jo aaj kal har jagah use ho raha hai. Pakistan mein bhi iska trend barh raha hai.
-
-(90-180 seconds)
-${topic} ke main benefits yeh hain:
-- Time save hota hai
-- Efficiency barh jati hai  
-- Cost effective hai
-
-(180-270 seconds)
-Lekin har cheez ke kuch disadvantages bhi hote hain. ${topic} ke saath main issues yeh hain:
-- Privacy concerns
-- Technical knowledge chahiye
-- Initial setup complex ho sakta hai
-
-(270-330 seconds)
-Pakistan mein ${topic} ka future bohot bright hai. Agले 2-3 saal mein yeh technology aur bhi common ho jayegi.
-
-(330-360 seconds)
-Toh dosto, yeh tha complete overview of ${topic}. Video helpful laga toh like karo, subscribe karo aur bell icon press karna mat bhoolna!`;
-            }
-
-            scriptOutput.value = fallbackScript;
-            scriptInfo.style.display = 'block';
-            
-            // Update basic info
-            const wordCount = fallbackScript.split(' ').length;
-            document.getElementById('word-count').textContent = wordCount;
-            document.getElementById('duration-estimate').textContent = videoType === "short" ? "60-90 seconds" : "3-6 minutes";
-            document.getElementById('section-count').textContent = videoType === "short" ? "6" : "8";
-            
-            scriptOutput.style.height = 'auto';
-            scriptOutput.style.height = Math.min(scriptOutput.scrollHeight, 600) + 'px';
         }
         
         function copyScript() {
