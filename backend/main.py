@@ -74,8 +74,8 @@ if os.getenv("OPENAI_API_KEY"):
         logger.error(f"Failed to initialize OpenAI: {e}")
 
 app = FastAPI(
-    title="YouTube Script Writer API",
-    description="AI-powered YouTube script generation service",
+    title="TechFela YouTube Script Writer API",
+    description="AI-powered YouTube script generation for TechFela channel",
     version="1.0.0"
 )
 
@@ -91,31 +91,25 @@ app.add_middleware(
 # Request/Response models
 class ScriptRequest(BaseModel):
     topic: str
-    style: str = "educational"  # educational, entertainment, tutorial, review, techfela_short, techfela_long
-    duration: str = "medium"    # short (2-5 min), medium (5-10 min), long (10+ min)
-    target_audience: str = "general"  # general, beginners, advanced, kids
-    language: str = "english"  # english, roman_urdu
+    video_type: str = "short"  # short (60-90 secs), long (3-6 mins)
 
 class ScriptResponse(BaseModel):
     script: str
     word_count: int
     estimated_duration: str
-    sections: list
 
 # Initialize OpenAI client
 openai.api_key = os.getenv("OPENAI_API_KEY")
 
-def generate_techfela_script(topic: str, style: str = "techfela_short") -> str:
+def generate_techfela_script(topic: str, video_type: str = "short") -> str:
     """Generate script using TechFela prompts and Gemini AI"""
     
     try:
-        # Choose appropriate prompt based on style
-        if style == "techfela_short":
-            prompt = short_video_prompt
-        elif style == "techfela_long":
-            prompt = long_video_prompt
-        else:
-            prompt = base_prompt
+        # Choose appropriate prompt based on video type
+        if video_type == "short":
+            prompt = short_video_prompt  # 60-90 seconds
+        else:  # long
+            prompt = long_video_prompt   # 3-6 minutes
         
         # Find relevant reference from sample scripts
         reference = ""
@@ -158,133 +152,73 @@ def generate_techfela_script(topic: str, style: str = "techfela_short") -> str:
                 logger.error(f"OpenAI generation failed: {e}")
         
         # Ultimate fallback to template
-        return generate_techfela_template(topic, style)
+        return generate_techfela_template(topic, video_type)
         
     except Exception as e:
         logger.error(f"Error in TechFela script generation: {e}")
-        return generate_techfela_template(topic, style)
+        return generate_techfela_template(topic, video_type)
 
-def generate_techfela_template(topic: str, style: str) -> str:
+def generate_techfela_template(topic: str, video_type: str) -> str:
     """Generate a TechFela-style template when AI is not available"""
     
-    if style == "techfela_short":
+    if video_type == "short":
         return f"""Video Title: {topic}: Yeh Kyun Itna Popular Hai? 🤔
 
-(0-10 seconds)
+(0-15 seconds)
 {topic} ke baare mein suna hai? Agar nahi toh aaj tumhein pata chal jayega kyun sab is ke peeche pagal hain!
 
-(10-25 seconds)
+(15-30 seconds)
 Dekho bhai, {topic} actually yeh hai ke... *explains basic concept in simple Urdu*. Lekin masla yeh hai ke log ise samajh nahi pa rahe.
 
-(25-40 seconds)
-Pehle zamane mein hum log *old method* use karte the, lekin ab {topic} se sab kuch itna easy ho gaya hai ke bachpan ke din yaad aa gaye!
+(30-45 seconds)
+Pehle zamane mein hum log purane methods use karte the, lekin ab {topic} se sab kuch itna easy ho gaya hai!
 
-(40-55 seconds)
-Lekin yahan twist yeh hai - {topic} ke saath ek problem bhi hai. Woh yeh ke... *mentions common issue*
+(45-60 seconds)
+Lekin yahan twist yeh hai - {topic} ke saath ek problem bhi hai. Woh yeh ke sab log ise galat samajh rahe hain.
 
-(55-75 seconds)
-Toh conclusion yeh hai ke {topic} zaroori hai, lekin samajhdari se use karna parega. Warna phir wohi purana drama!
+(60-75 seconds)
+Toh conclusion yeh hai ke {topic} zaroori hai, lekin samajhdari se use karna parega.
 
-(75-85 seconds)
-Agar tumhein yeh video pasand aya toh like kar do, aur TechFela ko subscribe karna mat bhoolna! Comment mein batao ke tum {topic} use karte ho ya nahi!"""
+(75-90 seconds)
+Agar video pasand aya toh like kar do, TechFela ko subscribe karna mat bhoolna! Comment mein batao ke tum {topic} use karte ho ya nahi!"""
     
-    else:  # Long format
-        return f"""# {topic}: Complete Analysis
+    else:  # Long format (3-6 minutes)
+        return f"""Video Title: {topic}: Complete Guide - Sab Kuch Jo Tumhein Jaanna Chahiye! 🔥
 
-## Introduction
-Assalam o Alaikum TechFela family! Aaj hum baat karenge {topic} ke baare mein jo ke aaj kal har jagah sun rahe hain.
+(0-30 seconds)
+Assalam o Alaikum TechFela family! Aaj hum detail mein baat karenge {topic} ke baare mein. Agar tum tech ke fan ho toh yeh video tumhare liye perfect hai!
 
-## Main Content
+(30-90 seconds)
+Pehle main batata hun ke {topic} hai kya. Basically yeh ek technology/concept hai jo aaj kal har jagah use ho raha hai. Pakistan mein bhi iska trend barh raha hai.
 
-### {topic} Kya Hai?
-{topic} basically ek concept/technology hai jo... *detailed explanation in mix of Urdu and English*
+(90-150 seconds)
+{topic} ke main benefits yeh hain:
+- Pehla faida: Time save hota hai
+- Doosra faida: Efficiency barh jati hai  
+- Teesra faida: Cost effective hai
 
-### Kyun Important Hai?
-- Pehla reason: Modern life mein zaroori
-- Doosra reason: Future mein aur bhi important hoga  
-- Teesra reason: Pakistan mein bhi adoption barh raha hai
-
-### Real Life Examples
-Pakistan mein {topic} ka use:
-- Karachi mein...
-- Lahore mein...
-- Overall trend...
-
-### Pros and Cons
-**Fayde:**
-- Quick and efficient
-- Cost effective ho sakta hai
-- User friendly
-
-**Nuksanat:**
-- Kuch technical issues
+(150-210 seconds)
+Lekin har cheez ke kuch disadvantages bhi hote hain. {topic} ke saath main issues yeh hain:
 - Privacy concerns
-- Learning curve required
+- Technical knowledge chahiye
+- Initial setup thoda complex ho sakta hai
 
-## Conclusion
-Toh dosto, {topic} definitely future hai, lekin samajh ke saath use karna hoga.
+(210-270 seconds)
+Pakistan mein {topic} ka future kya hai? Main tumhein batata hun ke experts kya keh rahe hain. Agले 2-3 saal mein yeh technology aur bhi common ho jayegi.
 
-## Call to Action
-Video pasand aya ho toh like, subscribe aur bell icon press karna mat bhoolna! Comments mein apna experience share karo!
+(270-330 seconds)
+Agar tum {topic} use karna chahte ho toh yeh steps follow karo:
+1. Pehle research karo
+2. Budget decide karo
+3. Slowly slowly implement karo
 
----
-*Generated by TechFela Script Generator*"""
-
-def get_script_prompt(topic: str, style: str, duration: str, target_audience: str) -> str:
-    """Generate a detailed prompt for script creation based on parameters"""
-    
-    duration_guidelines = {
-        "short": "2-5 minutes (300-750 words)",
-        "medium": "5-10 minutes (750-1500 words)", 
-        "long": "10+ minutes (1500+ words)"
-    }
-    
-    style_guidelines = {
-        "educational": "Focus on teaching and explaining concepts clearly with examples",
-        "entertainment": "Make it engaging, fun, and entertaining with humor and storytelling",
-        "tutorial": "Provide step-by-step instructions with practical demonstrations",
-        "review": "Give honest opinions, pros/cons, and detailed analysis"
-    }
-    
-    audience_guidelines = {
-        "general": "Use accessible language that anyone can understand",
-        "beginners": "Explain basic concepts thoroughly with simple examples", 
-        "advanced": "Use technical terminology and dive deep into complex topics",
-        "kids": "Use simple words, fun examples, and engaging storytelling"
-    }
-    
-    return f"""Create a professional YouTube script about "{topic}".
-
-REQUIREMENTS:
-- Target Duration: {duration_guidelines.get(duration, duration_guidelines['medium'])}
-- Style: {style_guidelines.get(style, style_guidelines['educational'])}
-- Target Audience: {audience_guidelines.get(target_audience, audience_guidelines['general'])}
-
-STRUCTURE:
-1. **Hook** (First 15 seconds) - Grab attention immediately
-2. **Introduction** - Introduce yourself and the topic
-3. **Main Content** - Core information broken into clear sections
-4. **Examples/Demonstrations** - Practical applications
-5. **Conclusion** - Summarize key points
-6. **Call to Action** - Subscribe, like, comment prompts
-
-TONE:
-- Conversational and engaging
-- Appropriate for YouTube platform
-- Match the specified style and audience
-
-FORMAT:
-- Use clear section headers
-- Include timing suggestions
-- Add [VISUAL CUE] notes where relevant
-- Include engagement prompts throughout
-
-Make it compelling, well-structured, and optimized for YouTube success!"""
+(330-360 seconds)
+Toh dosto, yeh tha complete overview of {topic}. Agar video helpful laga toh like karo, subscribe karo aur bell icon press karna mat bhoolna! Comments mein batao ke tumhara experience kya hai!"""
 
 @app.get("/")
 async def root():
     """Health check endpoint"""
-    return {"message": "YouTube Script Writer API is running!", "status": "healthy"}
+    return {"message": "TechFela Script Writer API is running!", "status": "healthy"}
 
 @app.get("/health")
 async def health_check():
@@ -307,10 +241,10 @@ async def health_check():
 
 @app.post("/generate-script", response_model=ScriptResponse)
 async def generate_script(request: ScriptRequest):
-    """Generate a YouTube script based on the provided topic and parameters"""
+    """Generate a YouTube script based on the provided topic and video type"""
     
     try:
-        logger.info(f"Generating script for topic: {request.topic}, style: {request.style}")
+        logger.info(f"Generating {request.video_type} script for topic: {request.topic}")
         
         # Validate input
         if not request.topic.strip():
@@ -319,30 +253,24 @@ async def generate_script(request: ScriptRequest):
         if len(request.topic) > 200:
             raise HTTPException(status_code=400, detail="Topic too long (max 200 characters)")
         
-        # Choose generation method based on style
-        if request.style in ["techfela_short", "techfela_long"] or request.language == "roman_urdu":
-            # Use TechFela prompts with Gemini/OpenAI
-            script = generate_techfela_script(request.topic, request.style)
-        elif gemini_model or openai_client:
-            # Use AI for other styles
-            script = await generate_ai_script(request)
-        else:
-            # Fallback to template-based generation
-            logger.warning("No AI service configured, using template generation")
-            script = generate_template_script(request)
+        # Generate TechFela script
+        script = generate_techfela_script(request.topic, request.video_type)
         
         # Calculate metrics
         word_count = len(script.split())
-        estimated_duration = estimate_duration(word_count)
-        sections = extract_sections(script)
+        
+        # Estimate duration based on video type
+        if request.video_type == "short":
+            estimated_duration = "60-90 seconds"
+        else:
+            estimated_duration = "3-6 minutes"
         
         logger.info(f"Script generated successfully. Word count: {word_count}")
         
         return ScriptResponse(
             script=script,
             word_count=word_count,
-            estimated_duration=estimated_duration,
-            sections=sections
+            estimated_duration=estimated_duration
         )
         
     except HTTPException:
@@ -352,16 +280,22 @@ async def generate_script(request: ScriptRequest):
         raise HTTPException(status_code=500, detail="Internal server error while generating script")
 
 async def generate_ai_script(request: ScriptRequest) -> str:
-    """Generate script using OpenAI API"""
+    """Generate script using OpenAI API - simplified for TechFela only"""
     
     try:
-        prompt = get_script_prompt(request.topic, request.style, request.duration, request.target_audience)
+        # Choose prompt based on video type
+        if request.video_type == "short":
+            prompt = short_video_prompt
+        else:
+            prompt = long_video_prompt
+            
+        full_prompt = f"{prompt}\n\nThe topic of the script is: {request.topic}."
         
         response = openai.ChatCompletion.create(
             model="gpt-3.5-turbo",
             messages=[
-                {"role": "system", "content": "You are an expert YouTube script writer who creates engaging, well-structured content that drives views and engagement."},
-                {"role": "user", "content": prompt}
+                {"role": "system", "content": "You are a creative scriptwriter for TechFela YouTube channel that creates engaging, humorous content in Roman Urdu for a Pakistani audience."},
+                {"role": "user", "content": full_prompt}
             ],
             max_tokens=2000,
             temperature=0.7
@@ -372,118 +306,18 @@ async def generate_ai_script(request: ScriptRequest) -> str:
     except Exception as e:
         logger.error(f"OpenAI API error: {str(e)}")
         # Fallback to template generation
-        return generate_template_script(request)
-
-def generate_template_script(request: ScriptRequest) -> str:
-    """Generate script using templates when AI is not available"""
-    
-    topic = request.topic
-    style = request.style
-    
-    script = f"""# {topic}
-
-## Hook (0:00-0:15)
-Hey everyone! Have you ever wondered about {topic}? Well, you're in for a treat because today we're diving deep into everything you need to know about this fascinating subject. Stick around because I guarantee you'll learn something new!
-
-## Introduction (0:15-0:45)
-Welcome back to the channel! I'm your host, and today we're exploring {topic}. Whether you're a complete beginner or looking to expand your knowledge, this video has something valuable for everyone.
-
-[VISUAL CUE: Show engaging graphics or title screen]
-
-## Main Content
-
-### What is {topic}? (0:45-2:00)
-Let me start by explaining what {topic} actually is. {topic} is [detailed explanation]. This concept has been gaining attention because [relevant reasons].
-
-### Why Should You Care? (2:00-3:30)
-Here are the key reasons why {topic} matters:
-
-• **Reason 1**: [Practical benefit or application]
-• **Reason 2**: [Future potential or relevance]  
-• **Reason 3**: [Personal or professional impact]
-
-[VISUAL CUE: Show supporting charts, images, or examples]
-
-### Getting Started (3:30-5:00)
-If you're interested in exploring {topic}, here's how to begin:
-
-1. **Step 1**: [First actionable step with explanation]
-2. **Step 2**: [Second step with practical advice]
-3. **Step 3**: [Third step to build momentum]
-
-### Common Mistakes to Avoid (5:00-6:00)
-Before we go further, let me share some common pitfalls people encounter:
-
-• **Mistake 1**: [Common error and how to avoid it]
-• **Mistake 2**: [Another frequent issue]
-• **Mistake 3**: [Third mistake with solution]
-
-### Pro Tips (6:00-7:00)
-Here are some advanced strategies that most people don't know:
-- [Expert tip 1]
-- [Expert tip 2]
-- [Expert tip 3]
-
-[VISUAL CUE: Highlight these tips with special graphics]
-
-## Real-World Examples (7:00-8:00)
-Let me show you some concrete examples of {topic} in action:
-[Specific examples relevant to the topic with explanations]
-
-## Conclusion (8:00-8:30)
-To wrap up, {topic} is incredibly powerful when you understand how to apply it correctly. The key takeaways from today's video are:
-
-1. [Key insight 1]
-2. [Key insight 2]
-3. [Key insight 3]
-
-## Call to Action (8:30-9:00)
-If you found this video helpful, please give it a thumbs up - it really helps the channel grow! 
-
-What's your experience with {topic}? Drop your thoughts in the comments below, and I'll make sure to respond to as many as possible.
-
-Don't forget to subscribe and hit that notification bell for more content like this. I've got some exciting videos coming up that you won't want to miss!
-
-Until next time, keep learning and stay curious!
-
-[VISUAL CUE: End screen with subscribe button and related videos]
-
----
-*Generated by YouTube Script Writer AI*
-*Word count: Approximately {len(topic.split()) * 50} words*"""
-
-    return script
+        return generate_techfela_template(request.topic, request.video_type)
 
 def estimate_duration(word_count: int) -> str:
-    """Estimate video duration based on word count (assuming 150 words per minute)"""
+    """Estimate video duration based on word count"""
     minutes = word_count / 150
     
-    if minutes < 2:
-        return "1-2 minutes"
-    elif minutes < 5:
-        return "3-5 minutes"
-    elif minutes < 10:
-        return "5-10 minutes"
-    elif minutes < 15:
-        return "10-15 minutes"
+    if minutes < 1.5:
+        return "60-90 seconds"
+    elif minutes < 6:
+        return "3-6 minutes"
     else:
-        return "15+ minutes"
-
-def extract_sections(script: str) -> list:
-    """Extract section titles from the script"""
-    sections = []
-    lines = script.split('\n')
-    
-    for line in lines:
-        line = line.strip()
-        if line.startswith('##'):
-            # Remove markdown and timing info
-            section = line.replace('##', '').strip()
-            if '(' in section and ')' in section:
-                section = section.split('(')[0].strip()
-            sections.append(section)
-    
-    return sections
+        return "6+ minutes"
 
 if __name__ == "__main__":
     import uvicorn

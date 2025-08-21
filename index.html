@@ -367,41 +367,10 @@
                     </div>
 
                     <div class="input-group">
-                        <label class="label" for="style">Content Style</label>
-                        <select id="style" class="input">
-                            <option value="educational">Educational</option>
-                            <option value="entertainment">Entertainment</option>
-                            <option value="tutorial">Tutorial</option>
-                            <option value="review">Review</option>
-                            <option value="techfela_short">TechFela Short (Roman Urdu)</option>
-                            <option value="techfela_long">TechFela Long (Roman Urdu)</option>
-                        </select>
-                    </div>
-
-                    <div class="input-group">
-                        <label class="label" for="language">Language</label>
-                        <select id="language" class="input">
-                            <option value="english">English</option>
-                            <option value="roman_urdu">Roman Urdu (TechFela Style)</option>
-                        </select>
-                    </div>
-
-                    <div class="input-group">
-                        <label class="label" for="duration">Video Duration</label>
-                        <select id="duration" class="input">
-                            <option value="short">Short (2-5 minutes)</option>
-                            <option value="medium" selected>Medium (5-10 minutes)</option>
-                            <option value="long">Long (10+ minutes)</option>
-                        </select>
-                    </div>
-
-                    <div class="input-group">
-                        <label class="label" for="audience">Target Audience</label>
-                        <select id="audience" class="input">
-                            <option value="general" selected>General Audience</option>
-                            <option value="beginners">Beginners</option>
-                            <option value="advanced">Advanced</option>
-                            <option value="kids">Kids</option>
+                        <label class="label" for="video-type">Video Type</label>
+                        <select id="video-type" class="input">
+                            <option value="short">Short Video (60-90 seconds)</option>
+                            <option value="long">Long Video (3-6 minutes)</option>
                         </select>
                     </div>
 
@@ -480,17 +449,11 @@
         
         async function generateScript() {
             const topicInput = document.getElementById('topic');
-            const styleInput = document.getElementById('style');
-            const durationInput = document.getElementById('duration');
-            const audienceInput = document.getElementById('audience');
-            const languageInput = document.getElementById('language');
+            const videoTypeInput = document.getElementById('video-type');
             const apiUrlInput = document.getElementById('api-url');
             
             const topic = topicInput.value.trim();
-            const style = styleInput.value;
-            const duration = durationInput.value;
-            const audience = audienceInput.value;
-            const language = languageInput.value;
+            const videoType = videoTypeInput.value;
             const apiUrl = apiUrlInput.value.trim() || DEFAULT_API_URL;
             
             if (!topic) {
@@ -521,10 +484,7 @@
                 
                 const requestBody = {
                     topic: topic,
-                    style: style,
-                    duration: duration,
-                    target_audience: audience,
-                    language: language
+                    video_type: videoType
                 };
                 
                 console.log('Sending request to:', `${apiUrl}/generate-script`);
@@ -584,7 +544,7 @@
                 showError(`Failed to generate script: ${error.message}`);
                 
                 // Fallback: Show a basic template
-                showFallbackScript(topic, style, duration, audience);
+                showFallbackScript(topic, videoType);
             }
         }
         
@@ -603,46 +563,58 @@
             console.log(message);
         }
         
-        function showFallbackScript(topic, style, duration, audience) {
+        function showFallbackScript(topic, videoType) {
             const scriptOutput = document.getElementById('script-output');
             const scriptInfo = document.getElementById('script-info');
             
-            const fallbackScript = `# ${topic}
+            let fallbackScript;
+            if (videoType === "short") {
+                fallbackScript = `Video Title: ${topic}: Yeh Kyun Itna Popular Hai? 🤔
 
-## Hook (0:00-0:15)
-Hey everyone! Today we're diving into ${topic}, and I promise you'll learn something incredible by the end of this video!
+(0-15 seconds)
+${topic} ke baare mein suna hai? Agar nahi toh aaj tumhein pata chal jayega kyun sab is ke peeche pagal hain!
 
-## Introduction (0:15-0:45)  
-Welcome back to the channel! I'm excited to share everything about ${topic} with you today.
+(15-30 seconds)
+Dekho bhai, ${topic} actually yeh hai ke... *explains basic concept*. Lekin masla yeh hai ke log ise samajh nahi pa rahe.
 
-## Main Content
+(30-45 seconds)
+Pehle zamane mein hum log purane methods use karte the, lekin ab ${topic} se sab kuch itna easy ho gaya hai!
 
-### What is ${topic}?
-${topic} is a fascinating subject that has been gaining attention recently. Let me break down the key concepts for you.
+(45-60 seconds)
+Lekin yahan twist yeh hai - ${topic} ke saath ek problem bhi hai. Woh yeh ke sab log ise galat samajh rahe hain.
 
-### Why Should You Care?
-Here are the main reasons why ${topic} is important:
-• It can impact your daily life
-• It's relevant to current trends  
-• It has practical applications
+(60-75 seconds)
+Toh conclusion yeh hai ke ${topic} zaroori hai, lekin samajhdari se use karna parega.
 
-### Getting Started
-If you want to explore ${topic}, here's how to begin:
-1. Start with the basics
-2. Practice regularly
-3. Stay updated with latest developments
+(75-90 seconds)
+Agar video pasand aya toh like kar do, TechFela ko subscribe karna mat bhoolna! Comment mein batao ke tum ${topic} use karte ho ya nahi!`;
+            } else {
+                fallbackScript = `Video Title: ${topic}: Complete Guide - Sab Kuch Jo Tumhein Jaanna Chahiye! 🔥
 
-## Conclusion
-To wrap up, ${topic} is definitely worth understanding. The key takeaways are:
-- Understanding leads to better decisions
-- Practice makes perfect
-- Stay curious and keep learning
+(0-30 seconds)
+Assalam o Alaikum TechFela family! Aaj hum detail mein baat karenge ${topic} ke baare mein. Agar tum tech ke fan ho toh yeh video tumhare liye perfect hai!
 
-## Call to Action
-If you found this helpful, please like and subscribe! What's your experience with ${topic}? Let me know in the comments below!
+(30-90 seconds)
+Pehle main batata hun ke ${topic} hai kya. Basically yeh ek technology/concept hai jo aaj kal har jagah use ho raha hai. Pakistan mein bhi iska trend barh raha hai.
 
----
-*Note: This is a fallback template. For AI-generated content, please ensure your backend is running.*`;
+(90-180 seconds)
+${topic} ke main benefits yeh hain:
+- Time save hota hai
+- Efficiency barh jati hai  
+- Cost effective hai
+
+(180-270 seconds)
+Lekin har cheez ke kuch disadvantages bhi hote hain. ${topic} ke saath main issues yeh hain:
+- Privacy concerns
+- Technical knowledge chahiye
+- Initial setup complex ho sakta hai
+
+(270-330 seconds)
+Pakistan mein ${topic} ka future bohot bright hai. Agले 2-3 saal mein yeh technology aur bhi common ho jayegi.
+
+(330-360 seconds)
+Toh dosto, yeh tha complete overview of ${topic}. Video helpful laga toh like karo, subscribe karo aur bell icon press karna mat bhoolna!`;
+            }
 
             scriptOutput.value = fallbackScript;
             scriptInfo.style.display = 'block';
@@ -650,8 +622,8 @@ If you found this helpful, please like and subscribe! What's your experience wit
             // Update basic info
             const wordCount = fallbackScript.split(' ').length;
             document.getElementById('word-count').textContent = wordCount;
-            document.getElementById('duration-estimate').textContent = '5-8 minutes';
-            document.getElementById('section-count').textContent = '6';
+            document.getElementById('duration-estimate').textContent = videoType === "short" ? "60-90 seconds" : "3-6 minutes";
+            document.getElementById('section-count').textContent = videoType === "short" ? "6" : "8";
             
             scriptOutput.style.height = 'auto';
             scriptOutput.style.height = Math.min(scriptOutput.scrollHeight, 600) + 'px';
