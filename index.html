@@ -16,6 +16,28 @@
             background: #0a0a0a;
             color: #ffffff;
             overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Futuristic Grid Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(14, 165, 233, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(14, 165, 233, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+            z-index: -1;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
         }
 
         .app {
@@ -89,14 +111,28 @@
         .logo {
             width: 80px;
             height: 80px;
-            background: linear-gradient(45deg, #0ea5e9, #a855f7);
-            border-radius: 50%;
+            background: linear-gradient(45deg, #ff0000, #cc0000);
+            border-radius: 20px;
             margin: 0 auto 2rem;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 2rem;
             animation: pulse 2s infinite;
+            position: relative;
+        }
+
+        .logo::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 30%;
+            transform: translate(-50%, -50%);
+            width: 0;
+            height: 0;
+            border-left: 16px solid white;
+            border-top: 10px solid transparent;
+            border-bottom: 10px solid transparent;
         }
 
         @keyframes pulse {
@@ -105,7 +141,7 @@
         }
 
         .title {
-            font-size: 4rem;
+            font-size: 3rem;
             font-weight: bold;
             margin-bottom: 1rem;
             background: linear-gradient(45deg, #0ea5e9, #a855f7, #ec4899);
@@ -121,28 +157,6 @@
             max-width: 600px;
             margin-left: auto;
             margin-right: auto;
-        }
-
-        .stats {
-            display: flex;
-            justify-content: center;
-            gap: 3rem;
-            margin-bottom: 3rem;
-        }
-
-        .stat {
-            text-align: center;
-        }
-
-        .stat-icon {
-            width: 40px;
-            height: 40px;
-            background: linear-gradient(45deg, #0ea5e9, #a855f7);
-            border-radius: 50%;
-            margin: 0 auto 0.5rem;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
 
         .glass-card {
@@ -298,13 +312,7 @@
 
         @media (max-width: 768px) {
             .title {
-                font-size: 2.5rem;
-            }
-            
-            .stats {
-                flex-direction: column;
-                gap: 1.5rem;
-                text-align: center;
+                font-size: 2rem;
             }
             
             .btn-group {
@@ -323,30 +331,12 @@
 
         <div class="container">
             <header class="header">
-                <div class="logo">🎬</div>
+                <div class="logo"></div>
                 <h1 class="title">YouTube Script Writer AI</h1>
                 <p class="subtitle">
                     Generate compelling YouTube scripts powered by advanced AI. 
                     Transform your ideas into engaging content that captivates your audience.
                 </p>
-                
-                <div class="stats">
-                    <div class="stat">
-                        <div class="stat-icon">🧠</div>
-                        <div><strong>AI</strong></div>
-                        <div style="color: #71717a; font-size: 0.9rem;">Powered</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-icon">⚡</div>
-                        <div><strong>Fast</strong></div>
-                        <div style="color: #71717a; font-size: 0.9rem;">Generation</div>
-                    </div>
-                    <div class="stat">
-                        <div class="stat-icon">✨</div>
-                        <div><strong>Quality</strong></div>
-                        <div style="color: #71717a; font-size: 0.9rem;">Content</div>
-                    </div>
-                </div>
             </header>
 
             <main>
@@ -372,20 +362,6 @@
                             <option value="short">Short Video (60-90 seconds)</option>
                             <option value="long">Long Video (3-6 minutes)</option>
                         </select>
-                    </div>
-
-                    <div class="input-group">
-                        <label class="label" for="api-url">Backend API URL</label>
-                        <input 
-                            type="url" 
-                            id="api-url" 
-                            class="input"
-                            placeholder="https://your-backend-api.com"
-                            value="https://youtube-script-writer-agent-production.up.railway.app"
-                        >
-                        <small style="color: #71717a; font-size: 0.85rem; margin-top: 0.5rem; display: block;">
-                            Your Railway deployment URL is pre-filled
-                        </small>
                     </div>
                     
                     <button class="btn" onclick="generateScript()">
@@ -444,17 +420,15 @@
     </div>
 
     <script>
-        // Configuration
-        const DEFAULT_API_URL = 'https://youtube-script-writer-agent-production.up.railway.app';
+        // Backend API URL - hardcoded
+        const API_URL = 'https://youtube-script-writer-agent-production.up.railway.app';
         
         async function generateScript() {
             const topicInput = document.getElementById('topic');
             const videoTypeInput = document.getElementById('video-type');
-            const apiUrlInput = document.getElementById('api-url');
             
             const topic = topicInput.value.trim();
             const videoType = videoTypeInput.value;
-            const apiUrl = apiUrlInput.value.trim() || DEFAULT_API_URL;
             
             if (!topic) {
                 showError('Please enter a video topic!');
@@ -487,12 +461,12 @@
                     video_type: videoType
                 };
                 
-                console.log('Sending request to:', `${apiUrl}/generate-script`);
+                console.log('Sending request to:', `${API_URL}/generate-script`);
                 console.log('Request body:', requestBody);
                 
                 loadingStatus.textContent = 'Generating script with AI...';
                 
-                const response = await fetch(`${apiUrl}/generate-script`, {
+                const response = await fetch(`${API_URL}/generate-script`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -595,10 +569,8 @@
         
         // Test backend connection on page load
         async function testBackendConnection() {
-            const apiUrl = document.getElementById('api-url').value.trim() || DEFAULT_API_URL;
-            
             try {
-                const response = await fetch(`${apiUrl}/health`);
+                const response = await fetch(`${API_URL}/health`);
                 if (response.ok) {
                     console.log('✅ Backend connection successful');
                 } else {
@@ -615,9 +587,6 @@
                 generateScript();
             }
         });
-        
-        // Test connection when API URL changes
-        document.getElementById('api-url').addEventListener('blur', testBackendConnection);
         
         // Test connection on page load
         window.addEventListener('load', () => {
