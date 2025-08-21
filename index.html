@@ -1189,179 +1189,6 @@
                 return;
             }
             
-            // Create a temporary element for PDF generation
-            const pdfElement = document.createElement('div');
-            pdfElement.style.cssText = `
-                padding: 30px;
-                font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-                background-color: white;
-                color: black;
-                line-height: 1.8;
-                max-width: 800px;
-                margin: 0 auto;
-                font-size: 14px;
-            `;
-            
-            // Add title with better styling
-            const titleElement = document.createElement('h1');
-            titleElement.textContent = `YouTube Script: ${topic}`;
-            titleElement.style.cssText = `
-                color: #1e40af;
-                font-size: 24px;
-                font-weight: bold;
-                border-bottom: 3px solid #1e40af;
-                padding-bottom: 15px;
-                margin-bottom: 30px;
-                text-align: center;
-            `;
-            pdfElement.appendChild(titleElement);
-            
-            // Clone and completely re-style the script content for PDF
-            const contentClone = scriptPreview.cloneNode(true);
-            
-            // Remove any existing styles and apply PDF-friendly ones
-            contentClone.style.cssText = `
-                background: none !important;
-                border: none !important;
-                max-height: none !important;
-                overflow: visible !important;
-                padding: 0 !important;
-                margin: 0 !important;
-            `;
-            
-            // Style all elements for PDF
-            const elements = contentClone.querySelectorAll('*');
-            elements.forEach(el => {
-                // Reset all styles first
-                el.style.cssText = '';
-                el.style.background = 'none';
-                el.style.border = 'none';
-                el.style.boxShadow = 'none';
-                
-                // Apply PDF-specific styles
-                el.style.color = 'black';
-                el.style.fontFamily = '"Segoe UI", Tahoma, Geneva, Verdana, sans-serif';
-                
-                if (el.tagName === 'H1') {
-                    el.style.cssText = `
-                        color: #1e40af !important;
-                        font-size: 20px !important;
-                        font-weight: bold !important;
-                        margin: 25px 0 15px 0 !important;
-                        border-bottom: 2px solid #1e40af !important;
-                        padding-bottom: 8px !important;
-                    `;
-                }
-                if (el.tagName === 'H2') {
-                    el.style.cssText = `
-                        color: #7c3aed !important;
-                        font-size: 18px !important;
-                        font-weight: bold !important;
-                        margin: 20px 0 12px 0 !important;
-                    `;
-                }
-                if (el.tagName === 'H3') {
-                    el.style.cssText = `
-                        color: #be185d !important;
-                        font-size: 16px !important;
-                        font-weight: bold !important;
-                        margin: 15px 0 10px 0 !important;
-                    `;
-                }
-                if (el.tagName === 'P') {
-                    el.style.cssText = `
-                        color: black !important;
-                        margin: 12px 0 !important;
-                        line-height: 1.8 !important;
-                        text-align: justify !important;
-                    `;
-                }
-                if (el.tagName === 'STRONG' || el.tagName === 'B') {
-                    el.style.cssText = `
-                        color: #d97706 !important;
-                        font-weight: bold !important;
-                    `;
-                }
-                if (el.tagName === 'EM' || el.tagName === 'I') {
-                    el.style.cssText = `
-                        color: #059669 !important;
-                        font-style: italic !important;
-                    `;
-                }
-                if (el.tagName === 'UL' || el.tagName === 'OL') {
-                    el.style.cssText = `
-                        margin: 15px 0 15px 25px !important;
-                        padding: 0 !important;
-                    `;
-                }
-                if (el.tagName === 'LI') {
-                    el.style.cssText = `
-                        color: black !important;
-                        margin: 8px 0 !important;
-                        line-height: 1.6 !important;
-                    `;
-                }
-                if (el.classList.contains('timestamp') || (el.style.backgroundColor && el.style.backgroundColor.includes('251, 191, 36'))) {
-                    el.style.cssText = `
-                        color: #d97706 !important;
-                        background-color: #fef3c7 !important;
-                        padding: 6px 12px !important;
-                        border-radius: 6px !important;
-                        font-weight: bold !important;
-                        display: inline-block !important;
-                        margin: 8px 0 !important;
-                    `;
-                }
-                if (el.tagName === 'BLOCKQUOTE') {
-                    el.style.cssText = `
-                        border-left: 4px solid #0ea5e9 !important;
-                        padding-left: 20px !important;
-                        margin: 20px 0 !important;
-                        color: #374151 !important;
-                        font-style: italic !important;
-                    `;
-                }
-                if (el.tagName === 'CODE') {
-                    el.style.cssText = `
-                        background-color: #f3f4f6 !important;
-                        color: #7c3aed !important;
-                        padding: 3px 8px !important;
-                        border-radius: 4px !important;
-                        font-family: "Courier New", monospace !important;
-                    `;
-                }
-            });
-            
-            pdfElement.appendChild(contentClone);
-            
-            // Enhanced PDF generation options
-            const options = {
-                margin: [0.8, 0.8, 0.8, 0.8],
-                filename: `youtube-script-${topic.replace(/\s+/g, '-').toLowerCase()}.pdf`,
-                image: { 
-                    type: 'jpeg', 
-                    quality: 1.0 
-                },
-                html2canvas: { 
-                    scale: 2,
-                    useCORS: true,
-                    allowTaint: false,
-                    backgroundColor: '#ffffff',
-                    height: window.innerHeight * 4,
-                    width: window.innerWidth * 2
-                },
-                jsPDF: { 
-                    unit: 'in', 
-                    format: 'a4', 
-                    orientation: 'portrait',
-                    putOnlyUsedFonts: true,
-                    floatPrecision: 16
-                },
-                pagebreak: { 
-                    mode: ['avoid-all', 'css', 'legacy'] 
-                }
-            };
-            
             // Show generating message
             const downloadBtn = document.getElementById('download-btn');
             const originalText = downloadBtn.innerHTML;
@@ -1373,18 +1200,204 @@
             `;
             downloadBtn.disabled = true;
             
-            // Generate and download PDF
-            html2pdf().set(options).from(pdfElement).save().then(() => {
-                // Reset button
+            // Get the raw script text and convert it properly
+            const scriptOutput = document.getElementById('script-output');
+            const rawScript = scriptOutput.value;
+            
+            if (!rawScript) {
+                showError('No script content found!');
                 downloadBtn.innerHTML = originalText;
                 downloadBtn.disabled = false;
-                console.log('PDF generated successfully');
-            }).catch((error) => {
-                console.error('PDF generation failed:', error);
-                downloadBtn.innerHTML = originalText;
-                downloadBtn.disabled = false;
-                showError('Failed to generate PDF. Please try again.');
+                return;
+            }
+            
+            // Create a simple, clean PDF document
+            const pdfContent = document.createElement('div');
+            pdfContent.style.cssText = `
+                padding: 40px;
+                font-family: Arial, sans-serif;
+                background-color: white;
+                color: black;
+                line-height: 1.6;
+                max-width: 800px;
+                margin: 0 auto;
+                font-size: 14px;
+            `;
+            
+            // Add title
+            const titleElement = document.createElement('h1');
+            titleElement.textContent = `YouTube Script: ${topic}`;
+            titleElement.style.cssText = `
+                color: #1e40af;
+                font-size: 24px;
+                font-weight: bold;
+                text-align: center;
+                margin-bottom: 30px;
+                border-bottom: 2px solid #1e40af;
+                padding-bottom: 15px;
+            `;
+            pdfContent.appendChild(titleElement);
+            
+            // Process the raw script text line by line
+            const lines = rawScript.split('\n');
+            let currentContent = '';
+            
+            lines.forEach(line => {
+                const trimmedLine = line.trim();
+                
+                // Skip empty lines
+                if (!trimmedLine) {
+                    if (currentContent) {
+                        currentContent += '<br><br>';
+                    }
+                    return;
+                }
+                
+                // Handle headers
+                if (trimmedLine.startsWith('# ')) {
+                    if (currentContent) {
+                        const p = document.createElement('div');
+                        p.innerHTML = currentContent;
+                        p.style.cssText = 'margin-bottom: 20px; text-align: justify;';
+                        pdfContent.appendChild(p);
+                        currentContent = '';
+                    }
+                    const h1 = document.createElement('h1');
+                    h1.textContent = trimmedLine.substring(2);
+                    h1.style.cssText = `
+                        color: #1e40af;
+                        font-size: 20px;
+                        font-weight: bold;
+                        margin: 25px 0 15px 0;
+                        border-bottom: 2px solid #1e40af;
+                        padding-bottom: 8px;
+                    `;
+                    pdfContent.appendChild(h1);
+                    return;
+                }
+                
+                if (trimmedLine.startsWith('## ')) {
+                    if (currentContent) {
+                        const p = document.createElement('div');
+                        p.innerHTML = currentContent;
+                        p.style.cssText = 'margin-bottom: 20px; text-align: justify;';
+                        pdfContent.appendChild(p);
+                        currentContent = '';
+                    }
+                    const h2 = document.createElement('h2');
+                    h2.textContent = trimmedLine.substring(3);
+                    h2.style.cssText = `
+                        color: #7c3aed;
+                        font-size: 18px;
+                        font-weight: bold;
+                        margin: 20px 0 12px 0;
+                    `;
+                    pdfContent.appendChild(h2);
+                    return;
+                }
+                
+                if (trimmedLine.startsWith('### ')) {
+                    if (currentContent) {
+                        const p = document.createElement('div');
+                        p.innerHTML = currentContent;
+                        p.style.cssText = 'margin-bottom: 20px; text-align: justify;';
+                        pdfContent.appendChild(p);
+                        currentContent = '';
+                    }
+                    const h3 = document.createElement('h3');
+                    h3.textContent = trimmedLine.substring(4);
+                    h3.style.cssText = `
+                        color: #be185d;
+                        font-size: 16px;
+                        font-weight: bold;
+                        margin: 15px 0 10px 0;
+                    `;
+                    pdfContent.appendChild(h3);
+                    return;
+                }
+                
+                // Handle timestamps
+                if (trimmedLine.match(/^\[[\d:]+\]/)) {
+                    if (currentContent) {
+                        const p = document.createElement('div');
+                        p.innerHTML = currentContent;
+                        p.style.cssText = 'margin-bottom: 15px; text-align: justify;';
+                        pdfContent.appendChild(p);
+                        currentContent = '';
+                    }
+                    const timestamp = document.createElement('div');
+                    timestamp.textContent = trimmedLine;
+                    timestamp.style.cssText = `
+                        color: #d97706;
+                        background-color: #fef3c7;
+                        padding: 8px 15px;
+                        border-radius: 6px;
+                        font-weight: bold;
+                        margin: 15px 0 10px 0;
+                        display: inline-block;
+                    `;
+                    pdfContent.appendChild(timestamp);
+                    return;
+                }
+                
+                // Handle regular text with markdown formatting
+                let processedLine = trimmedLine;
+                
+                // Bold text
+                processedLine = processedLine.replace(/\*\*(.*?)\*\*/g, '<strong style="color: #d97706; font-weight: bold;">$1</strong>');
+                
+                // Italic text
+                processedLine = processedLine.replace(/\*(.*?)\*/g, '<em style="color: #059669; font-style: italic;">$1</em>');
+                
+                // Add to current content
+                if (currentContent) {
+                    currentContent += '<br>';
+                }
+                currentContent += processedLine;
             });
+            
+            // Add any remaining content
+            if (currentContent) {
+                const p = document.createElement('div');
+                p.innerHTML = currentContent;
+                p.style.cssText = 'margin-bottom: 20px; text-align: justify;';
+                pdfContent.appendChild(p);
+            }
+            
+            // Simplified PDF options for better compatibility
+            const options = {
+                margin: [0.5, 0.5, 0.5, 0.5],
+                filename: `youtube-script-${topic.replace(/\s+/g, '-').toLowerCase()}.pdf`,
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { 
+                    scale: 1,
+                    useCORS: true,
+                    logging: false,
+                    backgroundColor: '#ffffff'
+                },
+                jsPDF: { 
+                    unit: 'in', 
+                    format: 'a4', 
+                    orientation: 'portrait'
+                }
+            };
+            
+            // Generate PDF
+            html2pdf()
+                .set(options)
+                .from(pdfContent)
+                .save()
+                .then(() => {
+                    console.log('PDF generated successfully');
+                    downloadBtn.innerHTML = originalText;
+                    downloadBtn.disabled = false;
+                })
+                .catch((error) => {
+                    console.error('PDF generation failed:', error);
+                    downloadBtn.innerHTML = originalText;
+                    downloadBtn.disabled = false;
+                    showError('Failed to generate PDF. Please try again.');
+                });
         }
         
         // Test backend connection on page load
