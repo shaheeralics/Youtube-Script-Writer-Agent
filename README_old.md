@@ -123,73 +123,57 @@ Railway backend with GitHub Pages frontend deployment
 
 </div>
 
-</div>
-
 ---
 
-<div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); padding: 30px; border-radius: 8px; background-image: linear-gradient(rgba(6, 182, 212, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(6, 182, 212, 0.03) 1px, transparent 1px); background-size: 15px 15px;">
-
-## Quick Start
+## 🚀 Quick Start
 
 <div align="center">
 
 ### Choose Your Platform
 
-[![Main App](https://img.shields.io/badge/Launch_Main_App-Click_Here-3b82f6?style=for-the-badge&logo=rocket&logoColor=white)](https://youscrip.neufera.com)
+[![Main App](https://img.shields.io/badge/🌟_Launch_Main_App-Click_Here-3b82f6?style=for-the-badge&logo=rocket&logoColor=white)](https://youscrip.neufera.com)
 
-[![Research Platform](https://img.shields.io/badge/Research_Platform-Click_Here-8b5cf6?style=for-the-badge&logo=streamlit&logoColor=white)](https://techfela.streamlit.app)
+[![Research Platform](https://img.shields.io/badge/🔬_Research_Platform-Click_Here-8b5cf6?style=for-the-badge&logo=streamlit&logoColor=white)](https://techfela.streamlit.app)
 
-[![Source Code](https://img.shields.io/badge/Explore_Code-Click_Here-ec4899?style=for-the-badge&logo=github&logoColor=white)](https://github.com/shaheeralics/Youtube-Script-Writer-Agent)
-
-</div>
+[![Source Code](https://img.shields.io/badge/📚_Explore_Code-Click_Here-ec4899?style=for-the-badge&logo=github&logoColor=white)](https://github.com/shaheeralics/Youtube-Script-Writer-Agent)
 
 </div>
 
 ---
 
-<div style="background: linear-gradient(135deg, #fefce8 0%, #fef9c3 100%); padding: 30px; border-radius: 8px; background-image: linear-gradient(rgba(202, 138, 4, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(202, 138, 4, 0.03) 1px, transparent 1px); background-size: 15px 15px;">
-
-## Project Architecture
+## 📋 Project Architecture
 
 ```
-Youtube-Script-Writer-Agent/
-├── index.html              # Main FastAPI + React App
-├── app.py                  # Streamlit Research Platform  
-├── requirements.txt        # Python Dependencies
-├── prompt*.txt             # AI Prompt Templates
-├── sample_scripts.docx     # Reference Scripts
-├── CNAME                   # Custom Domain Config
-└── README.md              # This Documentation
+📦 Youtube-Script-Writer-Agent/
+├── 🌐 index.html              # Main FastAPI + React App
+├── 🔬 app.py                  # Streamlit Research Platform  
+├── ⚙️ requirements.txt        # Python Dependencies
+├── 📝 prompt*.txt             # AI Prompt Templates
+├── 📄 sample_scripts.docx     # Reference Scripts
+├── 🚀 CNAME                   # Custom Domain Config
+└── 📖 README.md              # This Documentation
 ```
-
-</div>
 
 ---
 
-<div style="background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%); padding: 30px; border-radius: 8px; background-image: linear-gradient(rgba(139, 92, 246, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(139, 92, 246, 0.03) 1px, transparent 1px); background-size: 15px 15px;">
+## 🎯 App Screenshots & Features
 
-## Application Features
-
-### Main Application (youscrip.neufera.com)
+### 🌟 Main Application (youscrip.neufera.com)
 - **Futuristic Glass Morphism UI** with animated backgrounds
 - **Real-time Script Generation** with AI-powered suggestions
 - **Professional PDF Export** with formatted content
 - **Mobile-Responsive Design** for all devices
 - **Markdown Preview** with syntax highlighting
 
-### Research Platform (techfela.streamlit.app)
+### 🔬 Research Platform (techfela.streamlit.app)
 - **TechFela Integration** with Roman Urdu prompts
 - **Advanced Analytics** and performance metrics
 - **Developer Tools** for debugging and optimization
 - **Research Interface** for script experimentation
 
-</div>
-
 ---
 
-<div style="background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%); padding: 30px; border-radius: 8px; background-image: linear-gradient(rgba(16, 185, 129, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(16, 185, 129, 0.03) 1px, transparent 1px); background-size: 15px 15px;">
-
-## Development Setup
+## 🔧 Development Setup
 
 ```bash
 # Clone the repository
@@ -206,13 +190,9 @@ streamlit run app.py
 # Backend is deployed on Railway with API endpoints
 ```
 
-</div>
-
 ---
 
-<div style="background: linear-gradient(135deg, #fdf2f8 0%, #fce7f3 100%); padding: 30px; border-radius: 8px; background-image: linear-gradient(rgba(236, 72, 153, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(236, 72, 153, 0.03) 1px, transparent 1px); background-size: 15px 15px;">
-
-## Deployment Status
+## 🌐 Deployment Status
 
 | Platform | Status | URL | Purpose |
 |:---:|:---:|:---:|:---:|
@@ -220,13 +200,9 @@ streamlit run app.py
 | **Streamlit Cloud** | ✅ Live | [techfela.streamlit.app](https://techfela.streamlit.app) | Research Platform |
 | **Railway** | ✅ Live | Backend API | FastAPI Backend |
 
-</div>
-
 ---
 
-<div style="background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%); padding: 30px; border-radius: 8px; background-image: linear-gradient(rgba(71, 85, 105, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(71, 85, 105, 0.03) 1px, transparent 1px); background-size: 15px 15px;">
-
-## Contributing
+## 🤝 Contributing
 
 <div align="center">
 
@@ -242,13 +218,9 @@ streamlit run app.py
 4. **Push** to the branch (`git push origin feature/amazing-feature`)
 5. **Open** a Pull Request
 
-</div>
-
 ---
 
-<div style="background: linear-gradient(135deg, #fffef7 0%, #fef7cd 100%); padding: 30px; border-radius: 8px; background-image: linear-gradient(rgba(217, 119, 6, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(217, 119, 6, 0.03) 1px, transparent 1px); background-size: 15px 15px;">
-
-## License
+## 📄 License
 
 <div align="center">
 
@@ -258,15 +230,13 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 </div>
 
-</div>
-
 ---
 
-<div align="center" style="background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%); padding: 40px; border-radius: 12px; background-image: radial-gradient(circle at 1px 1px, rgba(59, 130, 246, 0.15) 1px, transparent 0); background-size: 20px 20px;">
+<div align="center">
 
-## Acknowledgments
+## 🙏 Acknowledgments
 
-**Built with cutting-edge technology**
+**Built with ❤️ and cutting-edge technology**
 
 [![Shaheer Ali](https://img.shields.io/badge/Developer-Shaheer_Ali-3b82f6?style=for-the-badge&logo=github&logoColor=white)](https://github.com/shaheeralics)
 
@@ -274,7 +244,7 @@ This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) 
 
 ---
 
-### Star this repository if you found it helpful!
+### 🌟 Star this repository if you found it helpful!
 
 [![GitHub stars](https://img.shields.io/github/stars/shaheeralics/Youtube-Script-Writer-Agent?style=social)](https://github.com/shaheeralics/Youtube-Script-Writer-Agent/stargazers)
 [![GitHub forks](https://img.shields.io/github/forks/shaheeralics/Youtube-Script-Writer-Agent?style=social)](https://github.com/shaheeralics/Youtube-Script-Writer-Agent/network/members)
