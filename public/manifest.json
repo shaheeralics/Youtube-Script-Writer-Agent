@@ -1,0 +1,72 @@
+{
+  "name": "TechFela YouTube Script Generator",
+  "short_name": "TechFela Scripts",
+  "description": "AI-powered YouTube script generator for TechFela content creators",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#667eea",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 192 192'><rect fill='%23667eea' width='192' height='192'/><text x='96' y='120' font-size='100' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>🎬</text></svg>",
+      "sizes": "192x192",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'><rect fill='%23667eea' width='512' height='512'/><text x='256' y='340' font-size='280' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>🎬</text></svg>",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 540 720'><rect fill='%23f5f5f5' width='540' height='720'/><rect fill='%23667eea' width='540' height='100'/><text x='270' y='65' font-size='30' font-weight='bold' text-anchor='middle' fill='white' font-family='Arial'>TechFela Scripts</text></svg>",
+      "sizes": "540x720",
+      "type": "image/svg+xml",
+      "form_factor": "narrow"
+    }
+  ],
+  "categories": ["productivity", "utilities"],
+  "shortcuts": [
+    {
+      "name": "Generate Short Script",
+      "short_name": "Short Script",
+      "description": "Generate a new short format YouTube script",
+      "url": "./?mode=short",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><circle fill='%23667eea' cx='48' cy='48' r='48'/><path fill='white' d='M48 25v46M35 38h26'/></svg>",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    },
+    {
+      "name": "Generate Long Script",
+      "short_name": "Long Script",
+      "description": "Generate a new long format YouTube script",
+      "url": "./?mode=long",
+      "icons": [
+        {
+          "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 96 96'><circle fill='%23764ba2' cx='48' cy='48' r='48'/><path fill='white' d='M30 30h36v6H30zm0 12h36v6H30zm0 12h36v6H30zm0 12h20v6H30z'/></svg>",
+          "sizes": "96x96",
+          "type": "image/svg+xml"
+        }
+      ]
+    }
+  ],
+  "share_target": {
+    "action": "./share",
+    "method": "POST",
+    "enctype": "multipart/form-data",
+    "params": {
+      "title": "title",
+      "text": "text",
+      "url": "url"
+    }
+  }
+}
